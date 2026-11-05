@@ -1,0 +1,1628 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Note in Gioco</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Il quiz di musica gratis, senza pubblicità e senza registrazione.">
+<meta name="theme-color" content="#1F2A2E">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+/* Layout: una colonna da telefono (max 440px) centrata, una schermata per volta */
+:root {
+  --bg: #1F2A2E; --card: #2A373C; --line: #3A494F; --line2: #475960; --line3: #56686F;
+  --fg: #FFFFFF; --muted: #C5D0CF; --track: #33434A; --deep: #151D20;
+  --accent: #A9C7B0; --accent-d: #6E8F78; --cool: #8FB8B0; --hot: #D9967E; --err: #E3A58C; --gold: #E8C874;
+  --ink: #1F2A2E;
+  --display: "Oswald", "Arial Narrow", sans-serif;
+  --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; -webkit-tap-highlight-color: transparent; }
+* { box-sizing: border-box; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:disabled { cursor: default; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#app { max-width: 440px; margin: 0 auto; min-height: 100%; display: flex; flex-direction: column; gap: 14px;
+  padding-block: 18px 22px; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); }
+.row { display: flex; align-items: center; gap: 12px; }
+.between { justify-content: space-between; }
+.grow { flex: 1; min-width: 0; }
+.eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); }
+.disp { font-family: var(--display); font-weight: 700; text-transform: uppercase; line-height: 1.05; text-wrap: balance; }
+.muted { color: var(--muted); }
+.small { font-size: 12px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; }
+.iconbtn { width: 44px; height: 44px; flex: none; border-radius: 12px; background: var(--card); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; }
+.btn { height: 52px; border-radius: 14px; border: none; background: var(--accent); color: var(--ink); font-family: var(--display); font-weight: 700; font-size: 18px; letter-spacing: 1px; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; }
+.btn.ghost { background: transparent; border: 1px solid var(--line3); color: var(--fg); font-family: var(--body); font-size: 15px; font-weight: 600; letter-spacing: 0; text-transform: none; }
+.btn.link { background: transparent; color: var(--accent); height: 44px; font-family: var(--body); font-size: 14px; font-weight: 600; text-transform: none; letter-spacing: 0; }
+.btn:active { transform: translateY(1px); }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.bar { height: 6px; background: var(--track); border-radius: 999px; overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--accent); border-radius: 999px; transition: width .5s ease; }
+.bar.gold > i { background: linear-gradient(to right, #B8913A, var(--gold)); }
+.tab { font-variant-numeric: tabular-nums; }
+
+/* Home */
+.hero { position: relative; min-height: 104px; }
+.hero .mic { position: absolute; right: -16px; top: -46px; width: 132px; height: 178px; opacity: .85;
+  -webkit-mask-image: linear-gradient(to bottom, #000 45%, transparent 92%); mask-image: linear-gradient(to bottom, #000 45%, transparent 92%); pointer-events: none; }
+.hero h1 { position: relative; margin: 0; font-size: 38px; padding-top: 8px; text-shadow: 0 2px 12px var(--bg); max-width: 260px; }
+.hero p { position: relative; margin: 8px 0 0; font-size: 14px; color: var(--muted); }
+.scalata { position: relative; overflow: hidden; padding: 20px 22px 62px; display: flex; flex-direction: column; gap: 11px; }
+.scalata .vinyl { position: absolute; top: -44px; right: -74px; width: 190px; height: 190px; }
+.scalata .keys { position: absolute; left: 0; bottom: 0; width: 100%; height: 46px; }
+.scalata .btn { height: 50px; margin-top: 2px; }
+.scalata > *:not(svg) { position: relative; }
+.mode { position: relative; overflow: hidden; height: 150px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); padding: 0 12px 14px; text-align: left; display: flex; flex-direction: column; justify-content: flex-end; gap: 4px; }
+.mode svg.inst { position: absolute; top: -6px; right: -44px; width: 190px; height: 131px;
+  -webkit-mask-image: linear-gradient(to right, transparent 8%, #000 55%); mask-image: linear-gradient(to right, transparent 8%, #000 55%); }
+.mode .fade { position: absolute; left: 0; right: 0; bottom: 0; height: 104px; background: linear-gradient(to top, var(--card) 45%, rgba(42,55,60,0)); }
+.mode > span:not(.fade) { position: relative; }
+.mode .t { font-family: var(--display); font-weight: 600; font-size: min(19px, 4.7vw); letter-spacing: .3px; text-transform: uppercase; white-space: nowrap; }
+
+/* Gioco */
+.qcard { position: relative; overflow: hidden; padding: 18px 18px 20px; display: flex; flex-direction: column; gap: 12px; min-height: 124px; }
+.qcard .vin { position: absolute; right: -104px; top: 50%; margin-top: -105px; width: 210px; height: 210px; opacity: .85;
+  -webkit-mask-image: linear-gradient(to left, #000 45%, transparent 100%); mask-image: linear-gradient(to left, #000 45%, transparent 100%); }
+.qcard > *:not(svg) { position: relative; }
+.chip { align-self: flex-start; font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink); background: var(--accent); border-radius: 999px; padding: 5px 10px; }
+.qtext { font-size: 20px; font-weight: 700; line-height: 1.3; max-width: 268px; text-wrap: pretty; }
+.answers { display: flex; flex-direction: column; gap: 9px; }
+.ans { min-height: 52px; border-radius: 14px; border: 1px solid var(--line); background: var(--card); font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 14px; padding: 8px 14px; text-align: left; transition: background .15s, border-color .15s, opacity .2s; }
+.ans .l { width: 30px; height: 30px; border-radius: 999px; flex: none; display: flex; align-items: center; justify-content: center; font-family: var(--display); font-size: 15px; background: var(--track); }
+.ans .tag { margin-left: auto; font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+.ans.off { opacity: .3; text-decoration: line-through; }
+.ans.dim { opacity: .45; }
+.ans.ok { border: 2px solid var(--accent); background: rgba(169,199,176,.16); box-shadow: 0 0 18px rgba(169,199,176,.3); }
+.ans.ok .l { background: var(--accent); color: var(--ink); }
+.ans.ok .tag { color: var(--accent); }
+.ans.ko { border: 2px solid var(--err); background: rgba(217,150,126,.15); }
+.ans.ko .l { background: var(--err); color: var(--ink); }
+.ans.ko .tag { color: var(--err); }
+.hint { display: flex; gap: 12px; align-items: flex-start; background: rgba(169,199,176,.12); border: 1px solid var(--accent-d); border-radius: 14px; padding: 12px 14px; font-size: 14px; line-height: 1.4; color: #E4EBE8; }
+.aids { margin-top: auto; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding-top: 4px; }
+.aid { background: transparent; border: none; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.aid .c { width: 64px; height: 64px; border-radius: 999px; background: radial-gradient(circle at 35% 30%, #3E5158, var(--card) 70%); border: 1px solid var(--line3); box-shadow: 0 6px 16px rgba(0,0,0,.35); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.aid span.n { font-size: 12px; font-weight: 600; line-height: 1.25; text-align: center; }
+.aid:disabled { opacity: .35; }
+.panel { margin-top: auto; padding: 18px; display: flex; flex-direction: column; gap: 14px; border-radius: 20px; background: var(--card); border: 1px solid var(--line2); box-shadow: 0 -10px 30px rgba(0,0,0,.3); animation: up .3s ease; }
+.panel.good { border-top: 3px solid var(--accent); }
+.panel.bad { border-top: 3px solid var(--err); }
+.fact { display: flex; gap: 10px; background: var(--bg); border-radius: 12px; padding: 12px; font-size: 13px; line-height: 1.45; color: #E4EBE8; }
+.pts { display: flex; flex-direction: column; align-items: flex-end; }
+.pts b { font-family: var(--display); font-size: 22px; color: var(--accent); }
+.pts small { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.staff { width: 100%; height: auto; display: block; }
+.dots { display: flex; justify-content: space-between; gap: 4px; }
+.dots i { width: 26px; height: 26px; border-radius: 999px; display: flex; align-items: center; justify-content: center; }
+.dots i b { width: 6px; height: 6px; border-radius: 999px; }
+.exitbar { display: flex; align-items: center; gap: 10px; background: var(--card); border: 1px solid var(--line2); border-radius: 14px; padding: 10px 12px; font-size: 13px; }
+.exitbar button { height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line3); background: transparent; font-size: 13px; font-weight: 600; }
+.exitbar button.yes { background: var(--err); color: var(--ink); border: none; }
+.timer { width: 44px; height: 44px; flex: none; position: relative; display: flex; align-items: center; justify-content: center; }
+.timer svg { position: absolute; inset: 0; transform: rotate(-90deg); }
+.timer b { position: relative; font-family: var(--display); font-weight: 700; font-size: 16px; font-variant-numeric: tabular-nums; }
+.timer.low b { color: var(--err); }
+.timer.low { animation: pulse 1s ease-in-out infinite; }
+@keyframes pulse { 50% { transform: scale(1.08); } }
+.btn.shine { position: relative; overflow: hidden; border-color: var(--gold); color: var(--gold); font-weight: 700; }
+.btn.shine::after, .shinecard::after { content: ""; position: absolute; top: 0; bottom: 0; width: 45%; left: -60%; background: linear-gradient(100deg, transparent, rgba(232,200,116,.35), transparent); animation: sweep 2.6s ease-in-out infinite; pointer-events: none; }
+.shinecard { position: relative; overflow: hidden; }
+@keyframes sweep { 0% { left: -60%; } 60%, 100% { left: 130%; } }
+button.medal { color: var(--fg); font: inherit; }
+.medal.fresh { position: relative; border-color: var(--gold); background: linear-gradient(160deg, rgba(232,200,116,.14), var(--card) 60%); }
+.medal.fresh b { color: var(--gold); }
+.medal .newtag { position: absolute; top: 6px; right: 6px; font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--ink); background: var(--gold); border-radius: 999px; padding: 2px 6px; }
+.reveal .rbox { display: flex; flex-direction: column; align-items: center; gap: 18px; text-align: center; animation: up .25s ease; }
+.reveal .stage { position: relative; width: 240px; height: 210px; display: flex; align-items: center; justify-content: center; }
+.reveal .bigmedal { position: relative; z-index: 2; filter: drop-shadow(0 10px 22px rgba(0,0,0,.5)); }
+.reveal.fresh .bigmedal { animation: medalout 1.5s cubic-bezier(.2,.8,.2,1) both; animation-delay: .35s; z-index: 1; }
+.reveal .sleeve { position: absolute; z-index: 2; animation: sleeveaway 1.3s ease both; animation-delay: .35s; }
+.reveal .rtext { display: flex; flex-direction: column; align-items: center; gap: 6px; max-width: 300px; }
+.reveal.fresh .rtext { animation: fade .5s ease both; animation-delay: 1.5s; }
+.fnote { position: absolute; bottom: 30px; margin-left: -10px; z-index: 3; font-weight: 700; opacity: 0; animation: noteup 1.7s ease-out both; pointer-events: none; text-shadow: 0 0 10px rgba(232,200,116,.4); }
+.reveal.closing { animation: fadeout .3s ease both; }
+.reveal.closing .bigmedal { animation: shrink .3s ease both; }
+@keyframes medalout { 0% { transform: translateY(10px) scale(.5); opacity: 0; } 25% { transform: translateY(-40px) scale(.55); opacity: 1; } 65% { transform: translateY(-6px) scale(1.12); } 100% { transform: none; opacity: 1; } }
+@keyframes sleeveaway { 0%, 25% { transform: none; opacity: 1; } 70% { transform: translateY(70px) rotate(-6deg); opacity: 0; } 100% { transform: translateY(80px); opacity: 0; } }
+@keyframes noteup { 0% { transform: translateY(0) scale(.6); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(-170px) scale(1.1) rotate(12deg); opacity: 0; } }
+@keyframes fadeout { to { opacity: 0; } }
+@keyframes shrink { to { transform: scale(.3); opacity: 0; } }
+.sfida { position: relative; overflow: hidden; padding: 16px 16px 14px; display: flex; flex-direction: column; gap: 8px; border-color: rgba(232,200,116,.55); background: linear-gradient(160deg, rgba(232,200,116,.10), var(--card) 55%); }
+.sfida .btn { height: 46px; }
+.btn.gold { background: var(--gold); color: var(--ink); }
+.mnote.on { animation: bump .45s ease; }
+@keyframes bump { 40% { transform: scale(1.45); } }
+.switch { width: 46px; height: 28px; border-radius: 999px; background: var(--track); border: 1px solid var(--line2); position: relative; flex: none; transition: background .2s; }
+.switch i { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 999px; background: var(--muted); transition: transform .2s, background .2s; }
+.switch.on { background: var(--accent-d); border-color: var(--accent); }
+.switch.on i { transform: translateX(18px); background: #FFFFFF; }
+.ibtn { width: 32px; height: 32px; flex: none; border-radius: 999px; background: rgba(21,29,32,.8); border: 1px solid var(--line3); color: var(--fg); font-family: Georgia, "Times New Roman", serif; font-style: italic; font-weight: 700; font-size: 16px; display: inline-flex; align-items: center; justify-content: center; padding: 0; }
+.ibtn.sm { width: 26px; height: 26px; font-size: 14px; }
+.ibtn.abs { position: absolute; top: 10px; right: 10px; z-index: 3; }
+.ibtn.abs.left { left: 10px; right: auto; }
+.mwrap { position: relative; min-width: 0; }
+.nbadge { min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: var(--gold); color: var(--ink); font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; }
+.mwrap .mode { width: 100%; }
+.rules { margin: 4px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; line-height: 1.45; color: #E4EBE8; }
+.introp { margin: 0; font-size: 15px; line-height: 1.5; color: #E4EBE8; }
+.ilist { display: flex; flex-direction: column; gap: 10px; }
+.ilist > div { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 3px; }
+.ilist b { font-family: var(--display); font-size: 17px; text-transform: uppercase; letter-spacing: .5px; }
+.ilist span { font-size: 13px; color: var(--muted); line-height: 1.4; }
+.duelcard { width: 100%; min-height: 96px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); padding: 14px 14px 14px 16px; display: flex; align-items: center; gap: 12px; color: var(--fg); }
+.duelcard .t { font-family: var(--display); font-weight: 600; font-size: 21px; letter-spacing: .5px; text-transform: uppercase; }
+.vsart { position: relative; display: flex; align-items: center; flex: none; margin-right: 30px; }
+.vsart b { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-family: var(--display); font-size: 18px; color: var(--fg); background: var(--bg); border: 1px solid var(--line3); border-radius: 999px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; }
+.avatar { width: 44px; height: 44px; flex: none; border-radius: 999px; background: var(--bg); border: 2px solid var(--accent); color: var(--accent); display: inline-flex; align-items: center; justify-content: center; font-family: var(--display); font-weight: 700; font-size: 18px; }
+.vsline { display: flex; align-items: center; gap: 10px; color: var(--muted); font-family: var(--display); font-size: 14px; letter-spacing: 2px; }
+.vsline::before, .vsline::after { content: ""; flex: 1; height: 1px; background: var(--line2); }
+.pill { height: 38px; padding: 0 14px; border-radius: 999px; background: var(--bg); border: 1px solid var(--line3); color: var(--fg); font-size: 14px; font-weight: 600; }
+.namelink { background: none; border: none; padding: 0; color: var(--fg); font-weight: 700; text-decoration: underline; text-decoration-color: var(--line3); text-underline-offset: 3px; font-size: inherit; }
+.still, .still * { animation: none !important; }
+.pstag { align-self: flex-start; display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 999px; background: var(--gold); color: var(--ink); font-size: 11px; font-weight: 800; letter-spacing: .3px; }
+.pstag.abs { position: absolute; top: 12px; right: 12px; z-index: 2; height: 22px; padding: 0 8px; }
+.mode > .pstag.abs { position: absolute; }
+.radio { width: 18px; height: 18px; flex: none; border-radius: 999px; border: 2px solid var(--line3); }
+.radio.on { border-color: var(--accent); box-shadow: inset 0 0 0 4px var(--card); background: var(--accent); }
+.modal { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 24px max(20px, env(safe-area-inset-right, 0px)) 24px max(20px, env(safe-area-inset-left, 0px)); background: rgba(12,17,19,.72); backdrop-filter: blur(3px); animation: fade .2s ease; }
+.modal .box { width: 100%; max-width: 360px; background: var(--card); border: 1px solid var(--line2); border-radius: 22px; padding: 24px 20px 20px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,.5); animation: up .25s ease; }
+.modal .box p { margin: 0; font-size: 15px; line-height: 1.45; color: var(--muted); }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes up { from { transform: translateY(16px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .panel, .modal, .modal .box, .timer.low, .btn.shine::after, .shinecard::after, .reveal .rbox, .reveal.fresh .bigmedal, .reveal .sleeve, .reveal.fresh .rtext, .reveal.closing, .reveal.closing .bigmedal, .mnote.on { animation: none; } .reveal .sleeve, .fnote { display: none; } .bar > i { transition: none; } }
+
+/* Tema, bacheca, classifica */
+.genre { position: relative; overflow: hidden; height: 112px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); text-align: left; padding: 12px 12px 12px 14px; display: flex; flex-direction: column; justify-content: flex-end; gap: 4px; }
+.genre.sel { background: rgba(169,199,176,.16); border: 2px solid var(--accent); }
+.genre .rec { position: absolute; top: -18px; right: -18px; width: 76px; height: 76px; border-radius: 999px; background: var(--deep); box-shadow: inset 0 0 0 6px #1B2528, inset 0 0 0 12px var(--deep), inset 0 0 0 13px #2E3C41, inset 0 0 0 20px var(--deep), inset 0 0 0 21px #2E3C41; }
+.genre .lab { position: absolute; top: 4px; right: 4px; width: 32px; height: 32px; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-family: var(--display); font-weight: 700; font-size: 12px; color: var(--ink); }
+.genre .nm { position: relative; font-family: var(--display); font-weight: 600; font-size: 17px; text-transform: uppercase; line-height: 1.1; padding-right: 30px; }
+.genre > span.s { position: relative; }
+.medal { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 10px 6px; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
+.medal.lock { opacity: .55; }
+.medal b { font-size: 12px; line-height: 1.2; }
+.medal small { font-size: 10px; color: var(--muted); line-height: 1.3; }
+.seg { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 4px; }
+.seg button { height: 40px; border: none; border-radius: 10px; background: transparent; color: var(--muted); font-size: 13px; font-weight: 700; }
+.seg button.on { background: var(--accent); color: var(--ink); }
+.lrow { min-height: 52px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); display: flex; align-items: center; gap: 12px; padding: 6px 14px; }
+.lrow.me { background: rgba(169,199,176,.14); border-color: var(--accent); }
+.lrow .p { width: 22px; font-family: var(--display); font-weight: 700; font-size: 16px; color: var(--muted); }
+.lrow .v { font-family: var(--display); font-weight: 600; font-size: 16px; }
+.podium { display: flex; align-items: flex-end; justify-content: center; gap: 10px; min-height: 170px; }
+.podium > div { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; }
+.podium .av { border-radius: 999px; background: var(--card); border: 2px solid; display: flex; align-items: center; justify-content: center; font-family: var(--display); font-weight: 700; font-size: 18px; }
+.podium .st { width: 100%; border-radius: 10px 10px 0 0; display: flex; justify-content: center; padding-top: 6px; font-family: var(--display); font-weight: 700; font-size: 20px; color: var(--ink); }
+.podium .nm { font-size: 13px; font-weight: 700; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field input { height: 50px; border-radius: 12px; border: 1px solid var(--line2); background: var(--card); color: var(--fg); padding: 0 14px; font: inherit; font-size: 16px; }
+.empty { padding: 22px 16px; text-align: center; color: var(--muted); font-size: 14px; line-height: 1.5; border: 1px dashed var(--line2); border-radius: 14px; }
+.info p { margin: 0; font-size: 14px; line-height: 1.55; color: #E4EBE8; }
+.info h2 { margin: 6px 0 0; font-family: var(--display); font-size: 18px; text-transform: uppercase; letter-spacing: .5px; }
+.center { align-items: center; text-align: center; }
+.toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--accent); color: var(--ink); font-weight: 700; font-size: 14px; padding: 10px 16px; border-radius: 999px; box-shadow: 0 8px 20px rgba(0,0,0,.4); }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="gChrome" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6E747C"/><stop offset=".3" stop-color="#F7F8F9"/><stop offset=".55" stop-color="#B7BCC3"/><stop offset=".8" stop-color="#E4E7EA"/><stop offset="1" stop-color="#5A5F66"/></linearGradient>
+    <linearGradient id="gMesh" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2C3035"/><stop offset=".4" stop-color="#8C939B"/><stop offset="1" stop-color="#25282C"/></linearGradient>
+    <linearGradient id="gRib" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".6" stop-color="#C9CDD2"/><stop offset="1" stop-color="#7C828A"/></linearGradient>
+    <linearGradient id="gGold" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8A6214"/><stop offset=".35" stop-color="#F6DA8C"/><stop offset=".7" stop-color="#C9962E"/><stop offset="1" stop-color="#7A5410"/></linearGradient>
+    <clipPath id="micClip"><path d="M37 9 C46 9 50 17 50 29 C50 42 46 52 37 54 C28 52 24 42 24 29 C24 17 28 9 37 9 Z"/></clipPath>
+    <radialGradient id="gHead" cx=".4" cy=".4" r=".7"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#DDD6C8"/></radialGradient>
+    <linearGradient id="gLacquer" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3A0F05"/><stop offset=".22" stop-color="#9C3B17"/><stop offset=".38" stop-color="#E08A4C"/><stop offset=".55" stop-color="#A8441B"/><stop offset=".85" stop-color="#6E2510"/><stop offset="1" stop-color="#2E0C04"/></linearGradient>
+    <radialGradient id="gBurst" cx=".5" cy=".62" r=".62"><stop offset="0" stop-color="#F8D899"/><stop offset=".42" stop-color="#E2A24F"/><stop offset=".78" stop-color="#99501B"/><stop offset="1" stop-color="#3A1806"/></radialGradient>
+    <linearGradient id="gNeck" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#22130A"/><stop offset=".5" stop-color="#4E2D17"/><stop offset="1" stop-color="#22130A"/></linearGradient>
+    <linearGradient id="gStick" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F7DFB4"/><stop offset=".5" stop-color="#D9A866"/><stop offset="1" stop-color="#9C6A33"/></linearGradient>
+    <linearGradient id="gKey" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#CFCAC0"/><stop offset=".15" stop-color="#FBFAF6"/><stop offset=".85" stop-color="#EEEAE2"/><stop offset="1" stop-color="#C8C2B6"/></linearGradient>
+    <linearGradient id="gBlack" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#050505"/><stop offset=".5" stop-color="#3A3A3C"/><stop offset="1" stop-color="#0A0A0A"/></linearGradient>
+    <linearGradient id="gBlackTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1C1C1E"/><stop offset=".7" stop-color="#3C3C40"/><stop offset="1" stop-color="#55555A"/></linearGradient>
+    <linearGradient id="gWood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4A2C18"/><stop offset="1" stop-color="#1A0E07"/></linearGradient>
+    <linearGradient id="gSheen" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0"/><stop offset=".5" stop-color="#FFFFFF" stop-opacity=".18"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient>
+    <radialGradient id="gDisc" cx=".5" cy=".5" r=".5"><stop offset=".3" stop-color="#101618"/><stop offset=".96" stop-color="#182226"/><stop offset="1" stop-color="#2C3A3F"/></radialGradient>
+    <radialGradient id="gLabel" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#C6DDD0"/><stop offset="1" stop-color="#8FB09A"/></radialGradient>
+    <linearGradient id="gFrame" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5A3820"/><stop offset=".5" stop-color="#2E1B0E"/><stop offset="1" stop-color="#4A2D18"/></linearGradient>
+    <linearGradient id="gOro" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8A6214"/><stop offset=".25" stop-color="#F6DA8C"/><stop offset=".45" stop-color="#C9962E"/><stop offset=".6" stop-color="#FFF1C2"/><stop offset=".8" stop-color="#B8862A"/><stop offset="1" stop-color="#7A5410"/></linearGradient>
+    <linearGradient id="gPlatino" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6E747C"/><stop offset=".25" stop-color="#F7F8F9"/><stop offset=".45" stop-color="#B7BCC3"/><stop offset=".6" stop-color="#FFFFFF"/><stop offset=".8" stop-color="#A9AFB6"/><stop offset="1" stop-color="#5A5F66"/></linearGradient>
+    <linearGradient id="gDiamante" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4E6F79"/><stop offset=".25" stop-color="#E6F7FA"/><stop offset=".45" stop-color="#9CC9D3"/><stop offset=".6" stop-color="#FFFFFF"/><stop offset=".8" stop-color="#8DB8C2"/><stop offset="1" stop-color="#4E6F79"/></linearGradient>
+    <linearGradient id="gPlaque" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F3DC9A"/><stop offset=".5" stop-color="#D2AC52"/><stop offset="1" stop-color="#A9802C"/></linearGradient>
+    <radialGradient id="gCoin" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#FFF1C2"/><stop offset=".45" stop-color="#E8C874"/><stop offset="1" stop-color="#B8913A"/></radialGradient>
+    <linearGradient id="gSleeve" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C6DDD0"/><stop offset=".55" stop-color="#A9C7B0"/><stop offset="1" stop-color="#6E8F78"/></linearGradient>
+    <linearGradient id="gShine" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0"/><stop offset=".5" stop-color="#FFFFFF" stop-opacity=".45"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient>
+  </defs>
+</svg>
+
+<div id="app" aria-live="polite"></div>
+
+<script>
+const BUILTIN_QUESTIONS = [{"id": 1, "q": "In che anno è uscito l'album Abbey Road dei Beatles?", "ok": "1969", "w": ["1967", "1968", "1970"], "g": "Rock", "a": "Album", "d": 3, "h": "È l'ultimo album che i Beatles hanno registrato insieme.", "s": "La foto di copertina fu scattata sulle strisce pedonali davanti agli studi di Abbey Road, a Londra."}, {"id": 2, "q": "Quale strumento suonava principalmente Jimi Hendrix?", "ok": "Chitarra elettrica", "w": ["Tastiere", "Batteria", "Basso"], "g": "Rock", "a": "Strumenti", "d": 1, "h": "La sua esibizione a Woodstock nel 1969 è rimasta nella storia.", "s": "Era mancino e suonava spesso una chitarra per destri girata al contrario."}, {"id": 3, "q": "Chi ha cantato Nel blu dipinto di blu al Festival di Sanremo del 1958?", "ok": "Domenico Modugno", "w": ["Gino Paoli", "Claudio Villa", "Adriano Celentano"], "g": "Musica italiana", "a": "Festival e premi", "d": 2, "h": "Era anche attore, e il brano lo ha scritto lui con Franco Migliacci.", "s": "Nel mondo il brano è conosciuto anche come Volare."}, {"id": 4, "q": "Quale membro dei Queen ha scritto il brano Another One Bites the Dust?", "ok": "John Deacon", "w": ["Roger Taylor", "Brian May", "Freddie Mercury"], "g": "Rock", "a": "Brani", "d": 3, "h": "Era il bassista della band e ha composto anche altri grandi successi dei Queen.", "s": "Il brano è caratterizzato da una linea di basso particolarmente riconoscibile, diventata uno dei suoi elementi distintivi."}, {"id": 5, "q": "Chi vinse la prima edizione del Festival di Sanremo, nel 1951?", "ok": "Nilla Pizzi", "w": ["Mina", "Claudio Villa", "Domenico Modugno"], "g": "Musica italiana", "a": "Festival e premi", "d": 2, "h": "Vinse con una canzone il cui titolo contiene un riferimento ai fiori", "s": "La canzone vincitrice si intitolava Grazie dei fiori. La prima edizione si svolse al Casinò di Sanremo."}, {"id": 6, "q": "Quale artista dei Daft Punk si nascondeva dietro il casco argentato?", "ok": "Thomas Bangalter", "w": ["David Guetta", "Guy-Manuel de Homem-Christo", "Jean-Michel Jarre"], "g": "Elettronica e dance", "a": "Artisti e band", "d": 4, "h": "Il duo francese era composto da due musicisti, uno con casco argentato e uno con casco dorato.", "s": "I Daft Punk hanno utilizzato i caschi robotici per costruire un'identità visiva misteriosa, evitando di mostrare frequentemente i propri volti."}, {"id": 7, "q": "Quale album dei Pink Floyd presenta sulla copertina un prisma attraversato da un fascio di luce che si scompone nei colori dell'arcobaleno?", "ok": "The Dark Side of the Moon", "w": ["Animals", "Wish You Were Here", "The Wall"], "g": "Anni '60 e '70", "a": "Album", "d": 1, "h": "È uno degli album più venduti e conosciuti della storia del rock, pubblicato nel 1973.", "s": "La copertina fu progettata dallo studio Hipgnosis, con il contributo grafico di George Hardie."}, {"id": 8, "q": "In quale anno è stato pubblicato l'album Master of Puppets dei Metallica?", "ok": "1986", "w": ["1995", "1984", "1988"], "g": "Metal", "a": "Album", "d": 2, "h": "È il terzo album in studio della band e contiene anche il brano Orion.", "s": "Fu l'ultimo album dei Metallica registrato con Cliff Burton al basso, prima della sua morte nel settembre 1986."}, {"id": 9, "q": "Chi produsse l'album Like a Virgin di Madonna?", "ok": "Nile Rodgers", "w": ["Giorgio Moroder", "Quincy Jones", "Trevor Horn"], "g": "Pop", "a": "Album", "d": 4, "h": "È anche il fondatore e chitarrista di una celebre band disco-funk chiamata Chic.", "s": "L'album, pubblicato nel novembre 1984, contiene anche successi come Material Girl e Dress You Up."}, {"id": 10, "q": "In quali città è stato registrato l'album Random Access Memories?", "ok": "Los Angeles, New York e Parigi", "w": ["Londra, Berlino e Tokyo", "Parigi, Roma e Madrid", "New York, Londra e Amsterdam"], "g": "Elettronica e dance", "a": "Album", "d": 5, "h": "Due città si trovano negli Stati Uniti, mentre la terza è la capitale francese.", "s": "L'album fu registrato tra il 2008 e il 2012."}, {"id": 11, "q": "Quale canzone dei Daft Punk, contenuta nell'album Random Access Memories, vede la partecipazione di Pharrell Williams e Nile Rodgers?", "ok": "Get Lucky", "w": ["One More Time", "Lose Yourself to Dance", "Instant Crush"], "g": "Elettronica e dance", "a": "Brani", "d": 2, "h": "Il titolo contiene una parola inglese che significa fortuna.", "s": "Il brano vinse il Grammy Award per la registrazione dell'anno nel 2014."}, {"id": 12, "q": "Con quale canzone i Måneskin hanno vinto l'Eurovision Song Contest nel 2021?", "ok": "Zitti e buoni", "w": ["Torna a casa", "Coraline", "Morirò da re"], "g": "Anni 2000 e oggi", "a": "Festival e premi", "d": 1, "h": "È la canzone che aveva permesso alla band di vincere il Festival di Sanremo nello stesso anno.", "s": "Con questa vittoria, l'Italia tornò a vincere l'Eurovision dopo 31 anni. L'ultima vittoria precedente era stata quella di Toto Cutugno nel 1990."}, {"id": 13, "q": "Quale brano apre l'album Nevermind dei Nirvana?", "ok": "Smells Like Teen Spirit", "w": ["Polly", "Come As You Are", "In Bloom"], "g": "Anni '90", "a": "Brani", "d": 2, "h": "È uno dei riff di chitarra più riconoscibili della storia del rock.", "s": "Il brano uscì come singolo prima dell'album e contribuì in maniera decisiva alla diffusione mondiale del grunge."}, {"id": 14, "q": "In quale momento della giornata Jimi Hendrix si esibì al Festival di Woodstock nel 1969?", "ok": "Lunedì mattina, intorno alle 9", "w": ["Venerdì sera a mezzanotte", "Domenica pomeriggio alle 15", "Sabato sera alle 22"], "g": "Rock", "a": "Festival e premi", "d": 4, "h": "La sua esibizione era prevista per la domenica, ma i ritardi accumulati cambiarono il programma.", "s": "Durante il concerto eseguì una celebre versione strumentale dell'inno nazionale statunitense, The Star-Spangled Banner."}, {"id": 15, "q": "Da quale lingua deriva il nome Måneskin e che cosa significa?", "ok": "Dal danese, significa chiaro di luna", "w": ["Dallo svedese, significa stella cadente", "Dal norvegese, significa notte senza fine", "Dall'islandese, significa luce del sole"], "g": "Anni 2000 e oggi", "a": "Curiosità", "d": 3, "h": "Il nome è un omaggio alle origini familiari della bassista Victoria De Angelis.", "s": "Victoria De Angelis ha origini danesi e fu proprio lei a proporre il nome alla band."}, {"id": 16, "q": "In quale giorno fu pubblicato ufficialmente l'album Nevermind dei Nirvana?", "ok": "24 settembre 1991", "w": ["14 febbraio 1992", "10 ottobre 1991", "21 settembre 1993"], "g": "Anni '90", "a": "Album", "d": 4, "h": "Fu pubblicato pochi giorni prima della fine di settembre del 1991.", "s": "Nel gennaio 1992 Nevermind raggiunse il primo posto della classifica Billboard 200, superando Dangerous di Michael Jackson."}, {"id": 17, "q": "In quale città si trovavano gli Sweet Silence Studios, dove i Metallica registrarono Master of Puppets?", "ok": "Copenaghen", "w": ["Los Angeles", "Londra", "Stoccolma"], "g": "Metal", "a": "Curiosità", "d": 5, "h": "Lo studio si trovava nella capitale di un Paese scandinavo famoso per la sua bandiera rossa con una croce bianca.", "s": "L'album fu registrato tra settembre e dicembre 1985 e prodotto dai Metallica insieme a Flemming Rasmussen."}, {"id": 18, "q": "Chi ha scritto la canzone We Are the Champions dei Queen?", "ok": "Freddie Mercury", "w": ["John Deacon", "Brian May", "Roger Taylor"], "g": "Rock", "a": "Brani", "d": 2, "h": "Il brano è diventato un vero inno sportivo ed è spesso cantato durante le celebrazioni delle vittorie.", "s": "La canzone fu pubblicata nel 1977 nell'album News of the World, insieme a un altro famosissimo brano della band: We Will Rock You."}, {"id": 19, "q": "Con quale canzone gli ABBA vinsero l'Eurovision Song Contest nel 1974?", "ok": "Waterloo", "w": ["Dancing Queen", "Mamma Mia", "Fernando"], "g": "Anni '60 e '70", "a": "Festival e premi", "d": 1, "h": "Il titolo richiama una famosa battaglia napoleonica.", "s": "La vittoria avvenne a Brighton, nel Regno Unito, e rappresentò il primo successo della Svezia nella storia dell'Eurovision."}, {"id": 20, "q": "Quale fu il primo grande successo di Stevie Wonder nelle classifiche americane, quando aveva appena 13 anni?", "ok": "Fingertips", "w": ["Isn't She Lovely", "Superstition", "My Cherie Amour"], "g": "Soul, funk e R&B", "a": "Brani", "d": 4, "h": "Il titolo inglese richiama le dita delle mani.", "s": "Quando iniziò a ottenere successo, Stevie Wonder veniva presentato con il soprannome di Little Stevie Wonder. Firmò con la Motown quando aveva appena 11 anni."}];
+let QUESTIONS = BUILTIN_QUESTIONS;
+const APP_NAME = "Note in Gioco";
+const KEY = "quizmusicale.v1";
+const TEST_MODE = false; /* false nella versione pubblicata */
+const APP_LINK = "https://noteingioco.github.io/"; /* il link pubblico dell'app, quando ci sarà */
+/* Come le certificazioni FIMI: oro, platino, multiplatino fino a 9, diamante = 10 platini. Più la demo iniziale. */
+const BAR_ORO = "linear-gradient(to right,#B8913A,#E8C874)", BAR_PLAT = "linear-gradient(to right,#9EA7AD,#E9EEF0)", BAR_DIA = "linear-gradient(to right,#7FAAB4,#E6F7FA)";
+const DISCS = [
+  { id: "demo", nome: "Prima demo", verso: "Verso la prima demo", soglia: 1000, kind: "demo", bar: "linear-gradient(to right,#C9675B,#E3A58C)" },
+  { id: "oro", nome: "Disco d'oro", verso: "Verso il disco d'oro", soglia: 15000, grad: "gOro", bar: BAR_ORO },
+  { id: "platino", nome: "Disco di platino", verso: "Verso il disco di platino", soglia: 30000, grad: "gPlatino", bar: BAR_PLAT }
+];
+[2, 3, 4, 5, 6, 7, 8, 9].forEach(n => {
+  const nome = n === 2 ? "Doppio platino" : n === 3 ? "Triplo platino" : n + " dischi di platino";
+  DISCS.push({ id: "platino" + n, nome, verso: n <= 3 ? "Verso il " + nome.toLowerCase() : "Verso i " + nome, soglia: 30000 * n, grad: "gPlatino", bar: BAR_PLAT, x: n });
+});
+DISCS.push({ id: "diamante", nome: "Disco di diamante", verso: "Verso il disco di diamante", soglia: 300000, grad: "gDiamante", bar: BAR_DIA });
+/* Dopo il diamante non c'è un tetto: un disco di diamante in più ogni 300.000 ascolti */
+for (let n = 2; n <= 50; n++) {
+  const nome = n === 2 ? "Doppio diamante" : n === 3 ? "Triplo diamante" : n + " dischi di diamante";
+  DISCS.push({ id: "diamante" + n, nome, verso: n <= 3 ? "Verso il " + nome.toLowerCase() : "Verso i " + nome, soglia: 300000 * n, grad: "gDiamante", bar: BAR_DIA, x: n });
+}
+const MEDALS = [
+  { id: "prima", nome: "Prima nota", desc: "La prima risposta giusta", sym: "♪" },
+  { id: "cima", nome: "In cima", desc: "Completa una scalata", sym: "15" },
+  { id: "senza", nome: "Senza maestro", desc: "Scalata completa senza aiuti", sym: "M" },
+  { id: "pieno", nome: "Pieno", desc: "Tutte giuste in partita veloce", sym: "10" },
+  { id: "special", nome: "Specialista", desc: "Tutte giuste in un quiz a tema", sym: "S" },
+  { id: "eclettico", nome: "Eclettico", desc: "Gioca 3 generi diversi", sym: "3" },
+  { id: "dieci", nome: "Dieci partite", desc: "Gioca 10 partite", sym: "x10" },
+  { id: "tour7", nome: "Tour di 7 giorni", desc: "7 giorni di fila", sym: "7" },
+  { id: "tour30", nome: "Tour mondiale", desc: "30 giorni di fila", sym: "30" },
+  { id: "sfida1", nome: "Prima sfida", desc: "Gioca la sfida del giorno", sym: "S1" },
+  { id: "cinque", nome: "Cinque su cinque", desc: "Sfida del giorno perfetta", sym: "5" },
+  { id: "settimana", nome: "Settimana di sfide", desc: "7 sfide del giorno di fila", sym: "7S" },
+  { id: "obiettivo1", nome: "Primo obiettivo", desc: "Completa un obiettivo della settimana", sym: "1" },
+  { id: "piena", nome: "Settimana piena", desc: "Tutti e 3 gli obiettivi in una settimana", sym: "3/3" },
+  { id: "mese", nome: "Mese perfetto", desc: "Settimana piena per 4 settimane di fila", sym: "4" },
+  { id: "collez", nome: "Collezionista", desc: "25 obiettivi completati in tutto", sym: "25" },
+  { id: "duello1", nome: "Primo duello", desc: "Gioca un duello con un amico", sym: "VS" },
+  { id: "imbatt", nome: "Imbattibile", desc: "Vinci 5 duelli", sym: "5V" },
+  { id: "orecchio", nome: "Orecchio assoluto", desc: "20 risposte giuste di fila", sym: "20" },
+  { id: "ultimo", nome: "All'ultimo secondo", desc: "Risposta giusta con 1 secondo rimasto", sym: "1s" },
+  { id: "tuttologo", nome: "Tuttologo", desc: "Almeno il 70% di giuste in 5 generi", sym: "70" },
+  { id: "serata", nome: "Pieno di doppi", desc: "Tutte e 5 le partite doppie in un giorno", sym: "×2" },
+  { id: "studioso", nome: "Studioso", desc: "Recupera 20 stonate", sym: "S" },
+  { id: "fedele", nome: "Fedelissimo", desc: "Gioca in 100 giorni diversi", sym: "100" }
+];
+const GENRE_COLORS = ["#D9967E", "#A9C7B0", "#D4B98C", "#C6DDD8", "#DDAEA7", "#8FB8B0", "#E3C9A0", "#B7C4D6", "#E3A58C"];
+const LEVELS = [
+  ["Ascoltatore", 0], ["Appassionato", 300], ["Canticchiatore", 1000], ["Strimpellatore", 3000], ["Musicista di strada", 6000], ["Turnista", 12000],
+  ["Solista", 24000], ["Band emergente", 42000], ["Gruppo spalla", 66000], ["Headliner", 102000], ["Star", 156000], ["Leggenda", 240000]
+];
+
+/* ---------- Salvataggio sul telefono ---------- */
+function blankPlayer(name) {
+  return { name, ascolti: 0, bestNote: 0, bestVeloce: 0, games: 0, medals: [], genres: [], lastDay: null, streak: 0, discs: [] };
+}
+function load() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) { const d = JSON.parse(raw); if (d && d.players) return d; }
+  } catch (e) {}
+  return { current: "Giocatore 1", players: { "Giocatore 1": blankPlayer("Giocatore 1") }, history: [] };
+}
+function save() {
+  try {
+    if (typeof S !== "undefined" && S.game) {
+      if (S.game.done) DB.saved = null;
+      else if (S.view === "game" || S.view === "handoff") DB.saved = { player: DB.current, view: S.view, g: Object.assign({}, S.game, { used: Array.from(S.game.used || []) }) };
+    }
+    localStorage.setItem(KEY, JSON.stringify(DB));
+  } catch (e) {}
+}
+let DB = load();
+function P() { if (!DB.players[DB.current]) DB.players[DB.current] = blankPlayer(DB.current); return DB.players[DB.current]; }
+
+/* ---------- Suoni e vibrazione ---------- */
+function settings() { DB.settings = DB.settings || { sound: true, vibe: true }; return DB.settings; }
+let AC = null;
+function ac() {
+  if (!settings().sound) return null;
+  try { if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === "suspended") AC.resume(); } catch (e) { AC = null; }
+  return AC;
+}
+function tone(freq, at, dur, opt) {
+  const c = ac(); if (!c) return;
+  opt = opt || {};
+  const t0 = c.currentTime + (at || 0), vol = opt.vol || 0.22;
+  const g = c.createGain(); g.connect(c.destination);
+  g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol, t0 + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  (opt.waves || ["triangle", "sine"]).forEach((w, i) => {
+    const o = c.createOscillator(); o.type = w; o.frequency.setValueAtTime(freq * (i === 1 ? 2 : 1), t0);
+    if (opt.detune) o.detune.setValueAtTime(opt.detune * (i ? -1 : 1), t0);
+    const og = c.createGain(); og.gain.value = i ? 0.25 : 1; o.connect(og); og.connect(g);
+    o.start(t0); o.stop(t0 + dur + 0.05);
+  });
+}
+const NOTE = { C4: 261.63, D4: 293.66, E4: 329.63, G4: 392.0, A4: 440.0, C5: 523.25, D5: 587.33, E5: 659.25, G5: 783.99, A5: 880.0, C6: 1046.5 };
+function vibe(p) { if (!settings().vibe) return; try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+const SFX = {
+  ok() { tone(NOTE.C5, 0, .35); tone(NOTE.E5, .07, .35); tone(NOTE.G5, .14, .5); vibe(30); },
+  ko() { tone(196, 0, .35, { waves: ["sawtooth"], vol: .08, detune: 30 }); tone(185, .16, .5, { waves: ["sawtooth"], vol: .08, detune: 30 }); vibe([80, 60, 80]); },
+  tick() { tone(1318, 0, .06, { waves: ["sine"], vol: .12 }); },
+  timeout() { tone(220, 0, .25, { waves: ["square"], vol: .06 }); tone(165, .18, .6, { waves: ["square"], vol: .06 }); vibe(220); },
+  medal() { [NOTE.G5, NOTE.C6, NOTE.E5, NOTE.G5, NOTE.C6].forEach((f, i) => tone(f, i * .09, .5, { vol: .14 })); vibe([40, 40, 40]); },
+  disc() { [NOTE.C5, NOTE.E5, NOTE.G5].forEach((f, i) => tone(f, i * .14, .3)); tone(NOTE.C6, .42, 1.1); tone(NOTE.G5, .42, 1.1, { vol: .1 }); tone(NOTE.E5, .42, 1.1, { vol: .1 }); vibe([60, 40, 120]); }
+};
+
+/* ---------- Sfida del giorno ---------- */
+const DAILY_TIME = 15;
+const WEEKDAYS = ["domenica", "lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato"];
+const MONTHS = ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre"];
+function dayNum(s) { const [Y, M, D] = s.split("-").map(Number); return Math.floor(Date.UTC(Y, M - 1, D) / 86400000); }
+function prettyDay(s, withWeekday) { const [Y, M, D] = s.split("-").map(Number); const w = WEEKDAYS[new Date(Y, M - 1, D).getDay()]; return (withWeekday ? w.charAt(0).toUpperCase() + w.slice(1) + " " : "") + D + " " + MONTHS[M - 1]; }
+function seeded(n) { let a = (n * 2654435761) >>> 0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function dailyQuestions(s) {
+  const planned = QUESTIONS.filter(q => q.sd === s).sort((a, b) => a.d - b.d);
+  if (planned.length >= 5) return planned.slice(0, 5);
+  const n = dayNum(s), chosen = planned.slice(), used = new Set(chosen.map(q => q.id));
+  const pool = QUESTIONS.filter(q => !q.sd);
+  const want = [1, 2, 3, 4, 5].slice(chosen.length);
+  want.forEach((d, k) => {
+    for (const dd of [d, d - 1, d + 1, d - 2, d + 2, d - 3, d + 3, d - 4, d + 4]) {
+      const list = pool.filter(q => q.d === dd && !used.has(q.id)).sort((a, b) => a.id - b.id);
+      if (list.length) { const q = list[(n + k * 3) % list.length]; chosen.push(q); used.add(q.id); return; }
+    }
+  });
+  return chosen.sort((a, b) => a.d - b.d);
+}
+function dailyMelody(s) {
+  const r = seeded(dayNum(s) + 7), scale = [NOTE.C4, NOTE.D4, NOTE.E4, NOTE.G4, NOTE.A4, NOTE.C5, NOTE.D5, NOTE.E5];
+  let i = 2 + Math.floor(r() * 3); const out = [];
+  for (let k = 0; k < 4; k++) { out.push(i); i = Math.max(0, Math.min(scale.length - 1, i + [-2, -1, 1, 2, 3][Math.floor(r() * 5)])); }
+  out.push(r() < .5 ? 0 : 5);
+  return out.map(x => ({ f: scale[x], step: x }));
+}
+function playMelody(s, res) {
+  const mel = dailyMelody(s), beat = .42;
+  mel.forEach((n, k) => { if (res[k]) tone(n.f, k * beat, k === 4 ? 1.1 : .55, { vol: .24 }); });
+  return mel.length * beat + .8;
+}
+function dailyTitle(r) { return ["Domani si riprova", "Qualche pausa di troppo", "Qualche pausa di troppo", "Bella melodia", "Quasi perfetta", "Melodia perfetta"][r]; }
+function melodySymbols(res) { const g = ["♪", "♫", "♩", "♬", "♪"]; return res.map((x, k) => x ? g[k] : "–").join(" "); }
+function melodyStaff(s, res, opt) {
+  opt = opt || {};
+  const mel = dailyMelody(s), W = 300, H = 92; let out = "";
+  for (let y = 26; y <= 58; y += 8) out += `<line x1="8" x2="${W - 8}" y1="${y}" y2="${y}" stroke="#475960" stroke-width="1"/>`;
+  mel.forEach((n, k) => {
+    const x = 40 + k * 56, y = 74 - n.step * 4, state = res[k];
+    const playing = opt.playing === k;
+    if (state === false) { out += `<rect x="${x - 7}" y="38" width="14" height="5" rx="1" fill="#E3A58C"/><line x1="${x - 11}" x2="${x + 11}" y1="38" y2="38" stroke="#E3A58C" stroke-width="1.4"/>`; return; }
+    const col = state ? (k === 4 ? "#E8C874" : "#A9C7B0") : "#56686F";
+    if (y >= 66) out += `<line x1="${x - 11}" x2="${x + 11}" y1="66" y2="66" stroke="#475960"/>`;
+    if (y >= 74) out += `<line x1="${x - 11}" x2="${x + 11}" y1="74" y2="74" stroke="#475960"/>`;
+    out += `<g class="mnote${playing ? " on" : ""}" data-k="${k}" style="transform-origin:${x}px ${y}px"><line x1="${x + 6}" x2="${x + 6}" y1="${y}" y2="${y - 26}" stroke="${col}" stroke-width="2"/><ellipse cx="${x}" cy="${y}" rx="7.2" ry="5.2" transform="rotate(-20 ${x} ${y})" fill="${state ? col : "none"}" stroke="${col}" stroke-width="2"/></g>`;
+  });
+  return `<svg viewBox="0 14 ${W} 70" style="width:100%;max-width:${opt.max || 320}px;height:auto;display:block;margin:0 auto" role="img" aria-label="Melodia del giorno, ${res.filter(Boolean).length} note su 5">${out}</svg>`;
+}
+function animateMelody(res) {
+  const beat = 420;
+  res.forEach((ok, k) => { if (!ok) return; setTimeout(() => { document.querySelectorAll(`.mnote[data-k="${k}"]`).forEach(el => { el.classList.remove("on"); void el.getBBox(); el.classList.add("on"); }); }, k * beat); });
+}
+function untilTomorrow() { const n = new Date(), m = new Date(n); m.setHours(24, 0, 0, 0); const min = Math.max(1, Math.round((m - n) / 60000)); const h = Math.floor(min / 60), mm = min % 60; return h ? `${h} ${h === 1 ? "ora" : "ore"} e ${mm} min` : `${mm} min`; }
+function shareText(s, res) {
+  const r = res.filter(Boolean).length;
+  const link = APP_LINK ? `${APP_LINK}#m-${s.replace(/-/g, "")}-${res.map(x => x ? 1 : 0).join("")}` : "";
+  return `${APP_NAME}, sfida del ${prettyDay(s)}\n${melodySymbols(res)}   ${r} su 5\nAscolta la mia melodia e prova anche tu${link ? ", " + link : "!"}`;
+}
+function parseShared(h) { const m = /^#m-(\d{8})-([01]{5})$/.exec(h || ""); if (!m) return null; const s = m[1].slice(0, 4) + "-" + m[1].slice(4, 6) + "-" + m[1].slice(6); return { date: s, res: m[2].split("").map(x => x === "1") }; }
+function copyText(txt) {
+  const done = () => toast("Copiato, ora incollalo dove vuoi");
+  try { navigator.clipboard.writeText(txt).then(done, () => { S.copyFallback = txt; render(); }); }
+  catch (e) { S.copyFallback = txt; render(); }
+}
+
+/* ---------- Regole delle modalità ---------- */
+const RULES = {
+  sfida: { t: "Sfida del giorno", items: [
+    "5 domande uguali per tutti, dalla più facile alla più difficile.",
+    "Si gioca una volta al giorno. Hai 15 secondi per ogni domanda e nessun aiuto.",
+    "Ogni risposta giusta vale 50 ascolti, con 100 in più se le indovini tutte e 5. Non conta tra le 5 partite doppie del giorno.",
+    "Ogni risposta giusta suona una nota della melodia di oggi, ogni errore è una pausa. Alla fine puoi mandare la tua melodia agli amici."] },
+  scalata: { t: "La Scalata", items: [
+    "15 domande, una per nota, sempre più difficili.",
+    "Hai 15 secondi per le prime 5 note, 20 per le note da 6 a 10 e 30 per le ultime 5.",
+    "Nelle prime 5 partite del giorno la prima nota vale 5 ascolti e ogni nota 5 in più della precedente, fino a 75. Se arrivi in cima ricevi 300 ascolti di premio. Dopo le prime 5 partite i valori sono la metà.",
+    "Un errore o il tempo scaduto chiudono la partita, ma gli ascolti guadagnati restano tuoi.",
+    "Hai tre aiuti, uno per tipo. Togli una stonata elimina una risposta sbagliata, il Suggerimento del maestro dà un indizio e 10 secondi in più, il Bis cambia domanda."] },
+  veloce: { t: "Partita veloce", items: [
+    "10 domande a caso, di tutti i generi e di tutte le difficoltà.",
+    "Non c'è tempo e arrivi sempre alla fine, anche se sbagli.",
+    "Ogni risposta giusta vale 20 ascolti nelle prime 5 partite del giorno, 10 dopo.",
+    "Hai gli stessi tre aiuti della scalata, uno per tipo."] },
+  duello: { t: "Duello", items: [
+    "Due giocatori sullo stesso telefono rispondono alle stesse 10 domande.",
+    "Prima gioca chi ha l'app, poi si passa il telefono allo sfidante. Le risposte dell'altro restano nascoste fino alla fine.",
+    "Non ci sono tempo né aiuti, così è una sfida alla pari.",
+    "Vince chi indovina più risposte. Nelle prime 5 partite del giorno guadagni 20 ascolti per ogni risposta giusta e 50 in più se vinci, dopo la metà."] },
+  tema: { t: "Quiz a tema", items: [
+    "Scegli un genere e rispondi a un massimo di 10 domande su quel genere.",
+    "Non c'è tempo e arrivi sempre alla fine, anche se sbagli.",
+    "Ogni risposta giusta vale 20 ascolti nelle prime 5 partite del giorno, 10 dopo. Hai gli stessi tre aiuti della scalata."] }
+};
+const RULES_FOOT = "Le prime 5 partite di ogni giorno valgono il doppio degli ascolti. Gli ascolti ti fanno salire di livello e conquistare i dischi, dalla prima demo al diamante. Se giochi tre giorni di fila guadagni il 10% in più, e una volta a settimana puoi saltare un giorno senza perdere la serie.";
+function ibtn(m, extra) { return `<button class="ibtn ${extra || ""}" data-act="rules" data-m="${m}" aria-label="Come si gioca, ${esc(RULES[m].t)}">i</button>`; }
+function rulesModal() {
+  if (!S.rules) return "";
+  const r = RULES[S.rules];
+  return `<div class="modal" data-act="closerules" role="dialog" aria-modal="true" aria-labelledby="rulesTitle"><div class="box" data-stop="1" style="text-align:left;align-items:stretch">
+    <span class="eyebrow">Come si gioca</span><span id="rulesTitle" class="disp" style="font-size:26px">${esc(r.t)}</span>
+    <ul class="rules">${r.items.map(x => `<li>${esc(x)}</li>`).join("")}</ul>
+    <p class="small" style="font-size:13px">${esc(RULES_FOOT)}</p>
+    <button class="btn" data-act="closerules" style="margin-top:4px">Ho capito</button></div></div>`;
+}
+
+/* ---------- Primo avvio ---------- */
+function vIntro() {
+  const k = S.introStep || 0, total = S.introReplay ? 3 : 4;
+  const dots = Array.from({ length: total }, (_, i) => `<i style="width:${i === k ? 22 : 8}px;height:8px;border-radius:999px;background:${i === k ? "var(--accent)" : "var(--line2)"};display:block;transition:width .2s"></i>`).join("");
+  let body;
+  if (k === 0) body = `<div style="width:120px;height:162px;margin:4px auto 0;opacity:.95">${micSvg().replace('class="mic"', 'style="width:100%;height:100%"')}</div><h1 class="disp" style="font-size:40px;margin:0;text-align:center">Benvenuto in Note in Gioco</h1>
+    <p class="introp">Artisti, album, generi e storia della musica. Rispondi, sali di livello e conquista i tuoi dischi.</p>
+    <p class="introp">Nessuna registrazione e nessuna pubblicità, si gioca e basta.</p>`;
+  else if (k === 1) body = `<span class="eyebrow">Quattro modi di giocare</span><span class="disp" style="font-size:32px">Scegli come sfidarti</span>
+    <div class="ilist">
+      <div><b style="color:var(--gold)">Sfida del giorno</b><span>5 domande uguali per tutti, una volta al giorno. Ogni risposta giusta suona una nota della melodia di oggi.</span></div>
+      <div><b>La Scalata</b><span>15 note sempre più difficili, con il tempo che corre. Al primo errore la partita finisce.</span></div>
+      <div><b>Partita veloce</b><span>10 domande a caso, senza tempo.</span></div>
+      <div><b>Quiz a tema</b><span>Un genere alla volta, dal rock ai cantautori.</span></div>
+    </div>
+    <p class="introp">Nella scalata e nelle partite libere hai tre aiuti, togli una stonata, il suggerimento del maestro e il bis.</p>`;
+  else if (k === 2) body = `<span class="eyebrow">Ascolti, dischi e medaglie</span><span class="disp" style="font-size:32px">Diventa una star</span>
+    <div style="display:flex;justify-content:center;gap:10px;padding:6px 0">${["demo", "oro", "platino", "diamante"].map(id => { const d = DISCS.find(x => x.id === id); return `<svg viewBox="0 0 60 60" width="62" height="62" aria-hidden="true">${d.kind === "demo" ? cassetteSvg(2, 11, 56) : `<circle cx="30" cy="30" r="29" fill="url(#${d.grad})"/><circle cx="30" cy="30" r="20" fill="none" stroke="#000" stroke-opacity=".2"/><circle cx="30" cy="30" r="9" fill="#1F2A2E"/>`}</svg>`; }).join("")}</div>
+    <p class="introp">Ogni risposta giusta ti fa guadagnare ascolti. Le prime 5 partite di ogni giorno valgono il doppio. Con gli ascolti sali di livello e conquisti i dischi, proprio come gli artisti veri, dalla prima demo al disco di diamante.</p>
+    <p class="introp">Lungo la strada sblocchi medaglie da scartare nella tua bacheca. Torna ogni giorno, dal terzo giorno di fila guadagni il 10% in più.</p>
+    <p class="introp small muted">Se hai un dubbio, tocca la <span class="ibtn" style="display:inline-flex;width:22px;height:22px;font-size:13px;vertical-align:middle">i</span> su ogni modalità.</p>`;
+  else body = `<span class="eyebrow">Ultima cosa</span><span class="disp" style="font-size:32px">Come ti chiami?</span>
+    <p class="introp">Il nome compare nella classifica e sui tuoi dischi. Resta solo su questo telefono.</p>
+    <form class="field" data-form="intro"><label for="introName" class="small muted" style="font-weight:600">Il tuo nome</label><input id="introName" name="introName" maxlength="18" autocomplete="given-name" placeholder="Il tuo nome"></form>`;
+  const last = k === total - 1;
+  return `<div class="row between"><div class="row" style="gap:6px">${dots}</div>${last ? "" : S.introReplay ? `<button class="btn link" style="width:auto;height:40px" data-act="introclose">Chiudi</button>` : `<button class="btn link" style="width:auto;height:40px" data-act="introskip">Salta</button>`}</div>
+  <div style="display:flex;flex-direction:column;gap:14px;flex:1">${body}</div>
+  <div class="grid2" style="${k ? "" : "grid-template-columns:1fr"}">${k ? `<button class="btn ghost" data-act="introback">Indietro</button>` : ""}${last ? (S.introReplay ? `<button class="btn" data-act="introclose">Ho capito</button>` : `<button class="btn" data-act="introdone">Inizia a giocare</button>`) : `<button class="btn" data-act="intronext">Avanti${ICON.arrow}</button>`}</div>`;
+}
+function finishIntro(name) {
+  name = (name || "").trim();
+  if (name && name !== DB.current && !DB.players[name]) {
+    const old = DB.current, p = DB.players[old];
+    if (p && !p.ascolti && !p.games) { p.name = name; DB.players[name] = p; delete DB.players[old]; DB.history.forEach(h => { if (h.player === old) h.player = name; }); }
+    else DB.players[name] = blankPlayer(name);
+    DB.current = name;
+  } else if (name && DB.players[name]) DB.current = name;
+  DB.onboarded = true; save(); S.view = "home"; S.introStep = 0; render(); window.scrollTo(0, 0);
+}
+
+/* ---------- Le tue stonate ---------- */
+function addWrong(id) { const p = P(); p.wrong = (p.wrong || []).filter(w => w.id !== id); p.wrong.unshift({ id, date: dayStr(new Date()) }); p.wrong = p.wrong.slice(0, 60); }
+function removeWrong(id) {
+  const p = P(); const before = (p.wrong || []).length; p.wrong = (p.wrong || []).filter(w => w.id !== id);
+  const ok = p.wrong.length < before; if (ok) { p.recovered = (p.recovered || 0) + 1; if (p.recovered >= 20) giveMedal("studioso"); }
+  return ok;
+}
+function wrongList() { return (P().wrong || []).map(w => ({ q: QUESTIONS.find(q => q.id === w.id), date: w.date })).filter(x => x.q); }
+function noteBrokenIcon(sz) { return AID_ICON.stonata.replace('width="38" height="38"', `width="${sz}" height="${sz}"`); }
+function vStonate() {
+  const list = wrongList();
+  const cards = list.map(x => `<div class="card" style="padding:14px 16px;display:flex;flex-direction:column;gap:8px;border-radius:16px">
+      <div class="row between"><span class="chip" style="font-size:9px;padding:4px 8px">${esc(x.q.g)}</span><span class="small muted">sbagliata il ${esc(prettyDay(x.date))}</span></div>
+      <div style="font-size:15px;font-weight:700;line-height:1.35">${esc(x.q.q)}</div>
+      <div class="row" style="gap:8px;font-size:14px"><span style="width:22px;height:22px;border-radius:999px;background:var(--accent);display:flex;align-items:center;justify-content:center;flex:none">${ICON.check("#1F2A2E")}</span><span style="font-weight:600;color:var(--accent)">${esc(x.q.ok)}</span></div>
+      ${x.q.s ? `<div class="small muted" style="line-height:1.45"><strong style="color:var(--cool)">Lo sapevi?</strong> ${esc(x.q.s)}</div>` : ""}
+    </div>`).join("");
+  return `${head(list.length ? `${list.length} ${list.length === 1 ? "domanda" : "domande"} da ripassare` : "Niente da ripassare", "Le tue stonate")}
+  <div class="muted" style="font-size:14px;line-height:1.45">Qui finiscono le domande che hai sbagliato. Quando le indovini, anche giocando normalmente, spariscono dalla lista.</div>
+  ${list.length ? `<button class="btn" data-act="start" data-mode="ripasso">${ICON.play}Ripassale giocando</button>${cards}` : `<div class="empty">Per ora nessuna stonata. Quando sbagli una risposta la ritrovi qui, con la risposta giusta e la curiosità.</div>`}`;
+}
+
+/* ---------- Obiettivi della settimana ---------- */
+const GOALS = [
+  { k: "nota", t: "Arriva alla nota 8 della scalata", goal: 8, max: true },
+  { k: "sfide", t: "Gioca 3 sfide del giorno", goal: 3 },
+  { k: "generi", t: "Gioca quiz a tema di 2 generi diversi", goal: 2, set: true },
+  { k: "stonate", t: "Recupera 5 stonate", goal: 5 },
+  { k: "giuste", t: "Indovina 40 risposte", goal: 40 },
+  { k: "veloce8", t: "Fai almeno 8 su 10 in una partita veloce", goal: 1 },
+  { k: "giorni", t: "Gioca in 4 giorni diversi", goal: 4 },
+  { k: "sfida5", t: "Fai 5 su 5 in una sfida del giorno", goal: 1 }
+];
+const GOAL_PRIZE = 300;
+function weekGoals() {
+  const w = weekId(dayStr(new Date())), r = seeded(w * 31 + 5);
+  const idx = GOALS.map((_, i) => i).sort(() => r() - .5);
+  let pick = idx.slice(0, 3);
+  if (pick.includes(1) && pick.includes(7)) pick = pick.filter(i => i !== 7).concat(idx.find(i => !pick.includes(i) && i !== 7));
+  return pick.map(i => GOALS[i]);
+}
+function weekState() {
+  const p = P(), w = weekId(dayStr(new Date()));
+  if (!p.week || p.week.id !== w) p.week = { id: w, prog: {}, sets: {}, done: [] };
+  return p.week;
+}
+function track(k, v) {
+  const ws = weekState(), goals = weekGoals(), g = goals.find(x => x.k === k);
+  if (!g || ws.done.includes(k)) return;
+  if (g.set) { ws.sets[k] = ws.sets[k] || []; if (!ws.sets[k].includes(v)) ws.sets[k].push(v); ws.prog[k] = ws.sets[k].length; }
+  else if (g.max) ws.prog[k] = Math.max(ws.prog[k] || 0, v);
+  else ws.prog[k] = (ws.prog[k] || 0) + v;
+  if (ws.prog[k] >= g.goal) {
+    ws.done.push(k); addAscolti(GOAL_PRIZE);
+    const p = P(); p.goalsTotal = (p.goalsTotal || 0) + 1;
+    giveMedal("obiettivo1"); if (p.goalsTotal >= 25) giveMedal("collez");
+    if (ws.done.length >= 3) {
+      giveMedal("piena"); p.fullWeeks = (p.fullWeeks || []).filter(w => w !== ws.id).concat(ws.id);
+      if ([0, 1, 2, 3].every(i => p.fullWeeks.includes(ws.id - i))) giveMedal("mese");
+    }
+    S.goalToast = `Obiettivo completato, +${GOAL_PRIZE} ascolti`;
+  }
+}
+function daysLeftWeek() { const d = new Date().getDay(); return d === 0 ? 1 : 8 - d; }
+function goalsRow() {
+  const ws = weekState(), n = ws.done.length;
+  return `<button class="btn ghost" data-act="go" data-view="obiettivi" style="justify-content:flex-start;padding:0 14px"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="#475960" stroke-width="2"/><circle cx="12" cy="12" r="6" fill="none" stroke="#A9C7B0" stroke-width="2"/><circle cx="12" cy="12" r="2.2" fill="#E8C874"/></svg><span class="grow" style="text-align:left">Obiettivi della settimana</span><span class="small ${n === 3 ? "" : "muted"}" style="${n === 3 ? "color:var(--accent);font-weight:700" : ""}">${n} su 3</span></button>`;
+}
+function vObiettivi() {
+  const ws = weekState(), goals = weekGoals(), left = daysLeftWeek();
+  const rows = goals.map(g => {
+    const v = Math.min(g.goal, ws.prog[g.k] || 0), ok = ws.done.includes(g.k);
+    return `<div class="card" style="padding:14px 16px;border-radius:16px;display:flex;flex-direction:column;gap:10px;${ok ? "border-color:var(--accent);background:rgba(169,199,176,.10)" : ""}">
+      <div class="row" style="align-items:flex-start"><span style="width:30px;height:30px;border-radius:999px;flex:none;display:flex;align-items:center;justify-content:center;background:${ok ? "var(--accent)" : "var(--track)"}">${ok ? ICON.check("#1F2A2E") : ""}</span><span class="grow" style="font-size:15px;font-weight:700;line-height:1.35;padding-top:4px">${esc(g.t)}</span><span class="small" style="color:var(--gold);font-weight:700;padding-top:6px;white-space:nowrap">+${GOAL_PRIZE}</span></div>
+      <div style="display:flex;flex-direction:column;gap:6px"><div class="bar"><i style="width:${v / g.goal * 100}%"></i></div><div class="small muted tab">${ok ? "Completato" : `${v} su ${g.goal}`}</div></div>
+    </div>`;
+  }).join("");
+  return `${head(left === 1 ? "Ultimo giorno" : `Ancora ${left} giorni`, "Obiettivi della settimana")}
+  <div class="muted" style="font-size:14px;line-height:1.45">Tre missioni che cambiano ogni lunedì. Ognuna vale ${GOAL_PRIZE} ascolti, che arrivano appena la completi.</div>
+  ${rows}`;
+}
+
+/* ---------- Nuovo livello ---------- */
+function levelModal() {
+  if (!S.levelShow) return "";
+  const l = S.levelShow, nx = LEVELS[l];
+  const notes = Array.from({ length: 10 }, (_, k) => { const x = Math.round((k / 9 - .5) * 220); const glyph = ["♪", "♫", "♩", "♬"][k % 4]; const col = ["#A9C7B0", "#E8C874", "#8FB8B0", "#D9967E"][k % 4]; return `<span class="fnote" style="left:calc(50% + ${x}px);color:${col};animation-delay:${(0.1 + (k % 5) * 0.12).toFixed(2)}s;font-size:${18 + (k % 3) * 6}px">${glyph}</span>`; }).join("");
+  return `<div class="modal reveal ${S.levelAnimated ? "still" : ""}" data-act="closelevel" role="dialog" aria-modal="true" aria-label="Nuovo livello"><div class="rbox">
+    <div class="stage" style="height:200px">${notes}<div class="bigmedal" style="animation:medalout 1s cubic-bezier(.2,.8,.2,1) both">${vinylSvg("", "url(#gLabel)").replace('<svg class=""', '<svg style="width:170px;height:170px"')}<span class="disp" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--ink)">${l}</span></div></div>
+    <div class="rtext"><span class="eyebrow" style="color:var(--gold);letter-spacing:3px">Nuovo livello</span><span class="disp" style="font-size:32px">${esc(levelName(l))}</span><span class="muted" style="font-size:15px">${nx ? `Il prossimo è ${esc(nx[0])}, a ${fmt(nx[1])} ascolti` : "Sei arrivato in cima, sei una leggenda della musica"}</span><span class="small" style="color:var(--accent);margin-top:10px">Tocca per continuare</span></div>
+  </div></div>`;
+}
+
+/* ---------- Duello ---------- */
+function vDuelloSetup() {
+  const p = P(), rivals = (p.rivals || []).filter(n => n !== DB.current).slice(0, 6);
+  return `${head("Con un amico, sullo stesso telefono", "Duello")}
+  <div class="card" style="padding:16px;border-radius:18px;display:flex;flex-direction:column;gap:14px">
+    <div class="row"><span class="avatar">${esc(DB.current.charAt(0).toUpperCase())}</span><span class="grow" style="display:flex;flex-direction:column"><span class="small muted">Gioca per primo</span><span style="font-size:17px;font-weight:700">${esc(DB.current)}</span></span></div>
+    <div class="vsline"><span>VS</span></div>
+    <form class="field" data-form="duel"><label for="rivalName" class="small muted">Come si chiama lo sfidante?</label><input id="rivalName" name="rivalName" maxlength="18" autocomplete="off" placeholder="Nome dell'amico" value="${esc(S.rival || "")}"></form>
+    ${rivals.length ? `<div style="display:flex;flex-direction:column;gap:8px"><span class="small muted">Sfidanti recenti</span><div style="display:flex;flex-wrap:wrap;gap:8px">${rivals.map(n => `<button class="pill" data-act="rival" data-n="${esc(n)}">${esc(n)}</button>`).join("")}</div></div>` : ""}
+  </div>
+  <div class="muted" style="font-size:14px;line-height:1.45">Rispondete alle stesse 10 domande, prima tu e poi lo sfidante. Niente tempo e niente aiuti. Alla fine vedete chi ha vinto.</div>
+  <button class="btn" style="margin-top:auto" data-act="duelstart">${ICON.play}Inizia il duello</button>`;
+}
+function startDuel(rival) {
+  rival = (rival || "").trim();
+  if (!rival) { toast("Scrivi il nome dello sfidante"); return; }
+  if (rival.toLowerCase() === DB.current.toLowerCase()) { toast("Lo sfidante deve avere un nome diverso dal tuo"); return; }
+  const p = P(); p.rivals = [rival].concat((p.rivals || []).filter(n => n !== rival)).slice(0, 8); S.rival = rival;
+  S.pendingDuel = { names: [DB.current, rival], res: [[], []], turn: 0 };
+  start("duello");
+}
+function vHandoff() {
+  const g = S.game, d = g.duel;
+  return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center">
+    <svg width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="#A9C7B0" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2.2"/><path d="M11 18.5h2"/><path d="M2.5 9.5c1-1.2 2.3-1.8 3.5-1.8M2.5 14.5c1 1.2 2.3 1.8 3.5 1.8M21.5 9.5c-1-1.2-2.3-1.8-3.5-1.8M21.5 14.5c-1 1.2-2.3 1.8-3.5 1.8" stroke="#E8C874"/></svg>
+    <span class="eyebrow">${esc(d.names[0])} ha finito il suo turno</span>
+    <span class="disp" style="font-size:36px">Passa il telefono a ${esc(d.names[1])}</span>
+    <span class="muted" style="font-size:15px;line-height:1.45;max-width:300px">${esc(d.names[1])}, ora tocca a te. Rispondi alle stesse 10 domande. Il risultato di ${esc(d.names[0])} resta nascosto fino alla fine.</span>
+  </div>
+  <button class="btn gold" data-act="duelturn">Sono ${esc(d.names[1])}, inizia</button>`;
+}
+function vDuelRes() {
+  const g = S.game, d = g.duel, a = d.res[0].filter(Boolean).length, b = d.res[1].filter(Boolean).length;
+  const title = a === b ? "Pareggio!" : `Vince ${a > b ? d.names[0] : d.names[1]}!`;
+  const col = i => { const s = d.res[i].filter(Boolean).length, win = (i === 0 ? a > b : b > a); return `<div class="card" style="padding:16px 10px;border-radius:18px;display:flex;flex-direction:column;align-items:center;gap:6px;${win ? "border-color:var(--gold);background:linear-gradient(160deg,rgba(232,200,116,.14),var(--card) 60%)" : ""}"><span class="avatar" style="${win ? "border-color:var(--gold);color:var(--gold)" : ""}">${esc(d.names[i].charAt(0).toUpperCase())}</span><span style="font-size:15px;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(d.names[i])}</span><span class="disp tab" style="font-size:40px;${win ? "color:var(--gold)" : ""}">${s}<span style="font-size:18px;color:var(--muted)">/${g.total}</span></span>${win ? '<span class="small" style="color:var(--gold);font-weight:700">Vincitore</span>' : ""}</div>`; };
+  const dotsRow = i => `<div class="row" style="gap:10px"><span class="small" style="width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600">${esc(d.names[i])}</span><div class="dots grow" style="gap:3px">${d.res[i].map(x => `<i style="width:18px;height:18px;background:${x ? "var(--accent)" : "var(--err)"}"><b style="width:4px;height:4px;background:var(--ink)"></b></i>`).join("")}</div></div>`;
+  return `
+  <div class="row center" style="flex-direction:column;gap:4px;padding-top:6px"><span class="eyebrow" style="letter-spacing:3px">Duello</span><span class="disp" style="font-size:38px">${esc(title)}</span></div>
+  <div class="grid2">${col(0)}${col(1)}</div>
+  <div class="card" style="padding:14px;border-radius:16px;display:flex;flex-direction:column;gap:10px"><span class="small muted">Domanda per domanda</span>${dotsRow(0)}${dotsRow(1)}</div>
+  ${psBox()}
+  <div class="card row" style="padding:12px 14px;border-radius:14px"><span class="disp tab" style="font-size:22px;color:var(--accent)">+${fmt(g.gained)}</span><span class="small muted">ascolti per ${esc(d.names[0])}${a > b ? ", compreso il premio per la vittoria" : ""}</span></div>
+  ${newMedalsBox()}
+  <div class="grid2" style="margin-top:auto"><button class="btn ghost" data-act="home">Torna al menu</button><button class="btn" data-act="rematch">${ICON.retry}Rivincita</button></div>`;
+}
+
+/* ---------- Il tuo profilo ---------- */
+function statAdd(q, ok) {
+  const p = P(); p.stats = p.stats || { ans: 0, right: 0, byG: {} };
+  p.stats.ans++; if (ok) p.stats.right++;
+  const g = p.stats.byG[q.g] = p.stats.byG[q.g] || [0, 0]; g[0]++; if (ok) g[1]++;
+  p.run = ok ? (p.run || 0) + 1 : 0; if (p.run >= 20) giveMedal("orecchio");
+  if (Object.values(p.stats.byG).filter(v => v[0] >= 5 && v[1] / v[0] >= 0.7).length >= 5) giveMedal("tuttologo");
+}
+function vProfilo() {
+  const p = P(), st = p.stats || { ans: 0, right: 0, byG: {} }, lv = level(p.ascolti);
+  const pct = (r, a) => a ? Math.round(r / a * 100) : 0;
+  const gs = Object.entries(st.byG).map(([g, v]) => ({ g, a: v[0], r: v[1], p: pct(v[1], v[0]) })).sort((x, y) => y.p - x.p || y.a - x.a);
+  const solid = gs.filter(x => x.a >= 3);
+  const best = solid[0], worst = solid.length > 1 ? solid[solid.length - 1] : null;
+  const temaBest = {}; DB.history.filter(h => h.mode === "tema" && h.player === DB.current).forEach(h => { temaBest[h.genre] = Math.max(temaBest[h.genre] || 0, h.v); });
+  const sfide = DB.history.filter(h => h.mode === "sfida" && h.player === DB.current);
+  const tile = (v, l) => `<div class="card" style="padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:14px"><span class="disp tab" style="font-size:24px">${v}</span><span class="small muted" style="text-transform:uppercase;letter-spacing:1px;font-size:10px;text-align:center">${l}</span></div>`;
+  const rec = (l, v) => `<div class="row between" style="padding:10px 0;border-bottom:1px solid var(--line)"><span style="font-size:14px">${l}</span><span class="disp tab" style="font-size:17px;text-transform:none">${v}</span></div>`;
+  const lab = s => `<span class="small muted" style="font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-top:6px">${s}</span>`;
+  return `${head(`Liv. ${lv}, ${esc(levelName(lv))}`, esc(p.name))}
+  <div class="grid3">${tile(p.games || 0, "partite")}${tile(st.ans, "risposte")}${tile(pct(st.right, st.ans) + "%", "giuste")}</div>
+  <div class="grid3">${tile(fmt(p.ascolti), "ascolti")}${tile(p.discs.length, "dischi")}${tile(p.medals.length, "medaglie")}</div>
+  ${best || worst ? `<div class="grid2">${best ? `<div class="card" style="padding:12px 14px;border-radius:14px;border-color:var(--accent)"><span class="small muted">Il tuo genere più forte</span><div style="font-size:15px;font-weight:700;margin-top:2px">${esc(best.g)}</div><span class="small" style="color:var(--accent)">${best.p}% di risposte giuste</span></div>` : ""}${worst ? `<div class="card" style="padding:12px 14px;border-radius:14px;border-color:var(--err)"><span class="small muted">Da ripassare</span><div style="font-size:15px;font-weight:700;margin-top:2px">${esc(worst.g)}</div><span class="small" style="color:var(--err)">${worst.p}% di risposte giuste</span></div>` : ""}</div>` : ""}
+  ${lab("Risposte giuste per genere")}
+  ${gs.length ? `<div style="display:flex;flex-direction:column;gap:10px">${gs.map(x => `<div style="display:flex;flex-direction:column;gap:5px"><div class="row between small"><span style="font-weight:600">${esc(x.g)}</span><span class="muted tab">${x.p}%, ${x.r} su ${x.a}</span></div><div class="bar"><i style="width:${x.p}%"></i></div></div>`).join("")}</div>` : `<div class="empty">Gioca qualche partita e qui vedrai come vai in ogni genere.</div>`}
+  ${lab("I tuoi record")}
+  <div>${rec("Nota più alta nella scalata", `${p.bestNote || 0}/15`)}${rec("Miglior partita veloce", `${p.bestVeloce || 0}/10`)}${rec("Sfide del giorno giocate", sfide.length)}${rec("Sfide perfette, 5 su 5", sfide.filter(h => h.v === 5).length)}${rec("Duelli vinti", `${p.duelWins || 0} su ${p.duels || 0}`)}${rec("Serie più lunga di giorni", p.maxStreak || p.streak || 0)}${rec("Obiettivi completati", p.goalsTotal || 0)}</div>
+  ${(p.wrong || []).length ? `<button class="btn ghost" data-act="go" data-view="stonate">${noteBrokenIcon(24)}Le tue stonate, ${p.wrong.length} da ripassare</button>` : ""}`;
+}
+
+/* ---------- Domande dal foglio Google pubblicato ---------- */
+const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSVls4diXtmoNxpkaeskLQMQK6LlO0xKPae-Anbnz3ufr63fQDJacEjUjBTPrRjWu9ST_jiIEpynjRp/pub?gid=971741918&single=true&output=csv";
+const QKEY = "noteingioco.domande";
+const MIN_SHEET_Q = 10;
+function parseCSV(text) {
+  const rows = []; let row = [], cell = "", q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) { if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += c; }
+    else if (c === '"') q = true;
+    else if (c === ",") { row.push(cell); cell = ""; }
+    else if (c === "\n" || c === "\r") { if (c === "\r" && text[i + 1] === "\n") i++; row.push(cell); rows.push(row); row = []; cell = ""; }
+    else cell += c;
+  }
+  if (cell !== "" || row.length) { row.push(cell); rows.push(row); }
+  return rows;
+}
+function sheetToQuestions(text) {
+  const rows = parseCSV(text.replace(/^﻿/, ""));
+  if (rows.length < 2) return [];
+  const norm = s => String(s || "").trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  const head = rows[0].map(norm), col = name => head.indexOf(norm(name));
+  const C = { id: col("ID"), q: col("Domanda"), ok: col("Risposta giusta"), w1: col("Sbagliata 1"), w2: col("Sbagliata 2"), w3: col("Sbagliata 3"), g: col("Genere"), a: col("Argomento"), d: col("Difficoltà"), h: col("Suggerimento del maestro"), s: col("Lo sapevi?"), v: col("Verificata"), sd: col("Sfida del giorno") };
+  if ([C.q, C.ok, C.w1, C.w2, C.w3, C.g, C.d].some(x => x < 0)) return [];
+  const cleanAns = v => { const s = String(v || "").trim(); return s.endsWith(".") ? s.slice(0, -1) : s; };
+  const day = v => {
+    const s = String(v || "").trim(); let m;
+    if ((m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/))) return `${m[1]}-${m[2].padStart(2, "0")}-${m[3].padStart(2, "0")}`;
+    if ((m = s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/))) return `${m[3]}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}`;
+    return "";
+  };
+  const out = [], seen = new Set(); let n = 0;
+  for (const r of rows.slice(1)) {
+    const get = i => i >= 0 ? String(r[i] || "").trim() : "";
+    if (!get(C.q)) continue;
+    n++;
+    if (C.v >= 0 && !/^s/i.test(get(C.v))) continue;
+    const ok = cleanAns(get(C.ok)), w = [cleanAns(get(C.w1)), cleanAns(get(C.w2)), cleanAns(get(C.w3))];
+    const d = parseInt(get(C.d), 10);
+    if (!ok || w.some(x => !x) || !(d >= 1 && d <= 5)) continue;
+    if (new Set([ok, ...w].map(x => x.toLowerCase())).size < 4) continue;
+    let id = parseInt(get(C.id), 10); if (!(id > 0) || seen.has(id)) id = n; if (seen.has(id)) continue; seen.add(id);
+    const item = { id, q: get(C.q), ok, w, g: get(C.g) || "Varie", a: get(C.a), d, h: get(C.h), s: get(C.s) };
+    const sd = day(get(C.sd)); if (sd) item.sd = sd;
+    out.push(item);
+  }
+  return out;
+}
+function useQuestions(list) { if (Array.isArray(list) && list.length >= MIN_SHEET_Q) { QUESTIONS = list; return true; } return false; }
+function loadSheetQuestions() {
+  try { const c = JSON.parse(localStorage.getItem(QKEY) || "null"); if (c) useQuestions(c.list); } catch (e) {}
+  if (!SHEET_URL || typeof fetch !== "function") return;
+  const ctl = typeof AbortController === "function" ? new AbortController() : null;
+  const timer = setTimeout(() => ctl && ctl.abort(), 10000);
+  fetch(SHEET_URL + "&t=" + Date.now(), { cache: "no-store", signal: ctl ? ctl.signal : undefined })
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
+    .then(text => {
+      const list = sheetToQuestions(text);
+      if (useQuestions(list)) {
+        try { localStorage.setItem(QKEY, JSON.stringify({ at: Date.now(), list })); } catch (e) {}
+        if (!S.game && (S.view === "home" || S.view === "info")) render();
+      }
+    })
+    .catch(() => {})
+    .finally(() => clearTimeout(timer));
+}
+
+/* ---------- Partita in sospeso ---------- */
+const MODE_NAMES = { scalata: "La Scalata", veloce: "Partita veloce", tema: "Quiz a tema", sfida: "Sfida del giorno", ripasso: "Ripasso delle stonate", duello: "Duello" };
+function checkSaved() {
+  const s = DB.saved; if (!s) return;
+  if (!s.g || !DB.players[s.player] || (s.g.mode === "sfida" && s.g.day !== dayStr(new Date()))) { dropSaved(); }
+}
+function dropSaved() {
+  const s = DB.saved; DB.saved = null;
+  if (s && s.g && s.g.mode === "sfida" && DB.players[s.player]) { const p = DB.players[s.player]; p.daily = p.daily || {}; p.daily[s.g.day] = { res: s.g.results.concat(Array(Math.max(0, 5 - s.g.results.length)).fill(false)).slice(0, 5), done: true }; }
+  save();
+}
+function resumeGame() {
+  const s = DB.saved; if (!s) return;
+  DB.current = s.player; S.game = Object.assign({}, s.g, { used: new Set(s.g.used || []) }); S.view = s.view; S.exitAsk = false;
+  lastTick = performance.now(); render(); window.scrollTo(0, 0);
+}
+function resumeModal() {
+  const s = DB.saved;
+  if (!s || S.game || S.view !== "home" || S.whoMenu) return "";
+  const g = s.g, label = g.mode === "scalata" ? `nota ${g.idx + 1} di 15` : `domanda ${Math.min(g.idx + 1, g.total)} di ${g.total}`;
+  const who = s.player !== DB.current ? ` di ${esc(s.player)}` : "";
+  return `<div class="modal" role="dialog" aria-modal="true" aria-labelledby="resTitle"><div class="box">
+    <span style="width:64px;height:64px;border-radius:999px;background:var(--bg);border:1px solid var(--line3);display:flex;align-items:center;justify-content:center"><svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1.2" fill="#A9C7B0"/><rect x="14" y="5" width="4" height="14" rx="1.2" fill="#A9C7B0"/></svg></span>
+    <span id="resTitle" class="disp" style="font-size:26px">Hai una partita in sospeso</span>
+    <p>${esc(MODE_NAMES[g.mode] || "Partita")}${g.mode === "tema" ? ", " + esc(g.genre) : ""}${who}, eri alla ${label}.${g.tMax && g.phase === "ask" ? ` Il tempo riparte da ${Math.max(1, Math.ceil(g.tLeft / 1000))} secondi.` : ""}${g.mode === "sfida" ? " Se lasci perdere, la sfida di oggi finisce qui." : ""}</p>
+    <div style="display:flex;flex-direction:column;gap:8px;width:100%;margin-top:6px"><button class="btn" data-act="resume">${ICON.play}Continua la partita</button><button class="btn ghost" data-act="dropsaved">Lascia perdere</button></div>
+  </div></div>`;
+}
+
+/* ---------- Chi gioca ---------- */
+function playerRow(n, act) {
+  const p = DB.players[n], lv = level(p.ascolti);
+  return `<button class="lrow ${n === DB.current ? "me" : ""}" data-act="${act}" data-n="${esc(n)}" style="color:var(--fg);text-align:left;width:100%;min-height:66px"><span class="avatar">${esc(n.charAt(0).toUpperCase())}</span><span class="grow" style="display:flex;flex-direction:column;min-width:0"><span style="font-size:16px;font-weight:700">${esc(n)}</span><span class="small muted">Liv. ${lv}, ${esc(levelName(lv))}${p.streak >= 2 && p.lastDay ? ` · ${p.streak} giorni di fila` : ""}</span></span>${n === DB.current ? `<span class="small" style="color:var(--accent);font-weight:700">${act === "chi" ? "Ultimo" : "In gioco"}</span>` : ""}</button>`;
+}
+function vChi() {
+  const names = Object.keys(DB.players).sort((a, b) => (a === DB.current ? -1 : b === DB.current ? 1 : a.localeCompare(b)));
+  return `<div class="row center" style="flex-direction:column;gap:6px;padding-top:24px"><span class="disp" style="font-size:20px;letter-spacing:1px">${esc(APP_NAME)}</span><span class="disp" style="font-size:40px;margin-top:18px">Chi gioca?</span><span class="muted" style="font-size:14px">Tocca il tuo nome per entrare</span></div>
+  <div style="display:flex;flex-direction:column;gap:10px;margin-top:10px">${names.map(n => playerRow(n, "chi")).join("")}</div>
+  <button class="btn ghost" style="margin-top:auto" data-act="go" data-view="giocatori">${ICON.people}Aggiungi giocatore</button>`;
+}
+function whoMenu() {
+  if (!S.whoMenu) return "";
+  const names = Object.keys(DB.players);
+  return `<div class="modal" data-act="closewho" role="dialog" aria-modal="true" aria-labelledby="whoTitle"><div class="box" data-stop="1" style="align-items:stretch;text-align:left">
+    <span id="whoTitle" class="disp" style="font-size:24px">Chi gioca adesso?</span>
+    <div style="display:flex;flex-direction:column;gap:8px">${names.map(n => playerRow(n, "pickwho")).join("")}</div>
+    <button class="btn ghost" data-act="go" data-view="giocatori">${ICON.people}Aggiungi o gestisci giocatori</button>
+    <button class="btn link" data-act="closewho">Chiudi</button>
+  </div></div>`;
+}
+
+/* ---------- Partite doppie (prime 5 del giorno) ---------- */
+const PS_GAMES = 5;
+function psUsed() { const p = P(), d = dayStr(new Date()); if (!p.ps || p.ps.day !== d) p.ps = { day: d, n: 0 }; return p.ps.n; }
+function psLeft() { return Math.max(0, PS_GAMES - psUsed()); }
+function psTag(short) { const l = psLeft(); if (!l) return ""; return short ? `<span class="pstag abs">×2</span>` : `<span class="pstag">Ascolti ×2, ancora ${l} ${l === 1 ? "partita" : "partite"} oggi</span>`; }
+function val(full) { const g = S.game; return g && g.ps === false ? Math.round(full / 2) : full; }
+
+/* ---------- Segnala un errore ---------- */
+const CONTACT_EMAIL = "noteingioco@hotmail.com";
+function reportMailto(rep) {
+  const subject = `Segnalazione domanda n. ${rep.id}`;
+  const body = `Ciao, segnalo un problema in ${APP_NAME}.\n\nDomanda n. ${rep.id}\n${rep.q}\n\nMotivo, ${rep.reason}${rep.note ? "\nNota, " + rep.note : ""}\n`;
+  return `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+const REPORT_REASONS = ["La risposta giusta è sbagliata", "La domanda non è chiara", "C'è un errore di battitura", "Altro"];
+function reportLink() { return `<button class="btn link" data-act="report" style="height:36px;font-size:13px;color:var(--muted)">Segnala un errore in questa domanda</button>`; }
+function reportModal() {
+  const r = S.report; if (!r) return "";
+  const q = QUESTIONS.find(x => x.id === r.id);
+  if (r.sent) return `<div class="modal" data-act="closereport" role="dialog" aria-modal="true"><div class="box" data-stop="1"><span style="width:56px;height:56px;border-radius:999px;background:var(--accent);display:flex;align-items:center;justify-content:center">${ICON.check("#1F2A2E")}</span><span class="disp" style="font-size:24px">Ultimo passo</span><p>Si apre la tua app della posta con il messaggio già scritto. Ti basta premere invia. Grazie, ci aiuti a migliorare le domande.</p><a class="btn" href="${esc(r.href)}" target="_blank" rel="noopener" data-act="mailopened" style="text-decoration:none">Apri la posta e invia</a><button class="btn ghost" data-act="closereport">Lascia perdere</button></div></div>`;
+  return `<div class="modal" data-act="closereport" role="dialog" aria-modal="true" aria-labelledby="repTitle"><div class="box" data-stop="1" style="text-align:left;align-items:stretch">
+    <span class="eyebrow">Domanda n. ${q.id}</span><span id="repTitle" class="disp" style="font-size:24px">Cosa non va?</span>
+    <p style="font-size:13px">${esc(q.q)}</p>
+    <div style="display:flex;flex-direction:column;gap:8px">${REPORT_REASONS.map((x, i) => `<button class="lrow ${r.reason === i ? "me" : ""}" data-act="repreason" data-i="${i}" style="color:var(--fg);text-align:left;min-height:46px;font-size:14px;font-weight:600"><span class="radio ${r.reason === i ? "on" : ""}"></span>${esc(x)}</button>`).join("")}</div>
+    <label for="repNote" class="small muted">Vuoi aggiungere qualcosa? (facoltativo)</label>
+    <textarea id="repNote" maxlength="300" style="min-height:70px;border-radius:12px;border:1px solid var(--line2);background:var(--bg);color:var(--fg);padding:10px;font:inherit;font-size:14px" placeholder="Per esempio, la risposta giusta secondo te">${esc(r.note || "")}</textarea>
+    <div class="grid2"><button class="btn ghost" data-act="closereport">Annulla</button><button class="btn" data-act="sendreport" ${r.reason === undefined ? "disabled style=\"opacity:.5\"" : ""}>Invia</button></div>
+  </div></div>`;
+}
+function vSegnalazioni() {
+  const list = (DB.reports || []).slice().reverse();
+  const txt = list.map(r => `Domanda n. ${r.id} (${r.date}, ${r.player})\n${r.q}\nMotivo, ${r.reason}${r.note ? "\nNota, " + r.note : ""}`).join("\n\n");
+  return `${head(list.length ? `${list.length} ${list.length === 1 ? "segnalazione" : "segnalazioni"}` : "Nessuna segnalazione", "Segnalazioni")}
+  <div class="muted" style="font-size:14px;line-height:1.45">Chi segnala una domanda te la manda per email a ${CONTACT_EMAIL}. Qui trovi anche quelle fatte da questo telefono, utili per le prove.</div>
+  ${list.length ? `<button class="btn" data-act="copyreports">Copia tutte le segnalazioni</button>${list.map(r => `<div class="card" style="padding:14px 16px;border-radius:16px;display:flex;flex-direction:column;gap:6px"><div class="row between"><span class="chip" style="font-size:9px;padding:4px 8px">Domanda n. ${r.id}</span><span class="small muted">${esc(prettyDay(r.date))}, ${esc(r.player)}</span></div><div style="font-size:14px;font-weight:700;line-height:1.35">${esc(r.q)}</div><div class="small" style="color:var(--err);font-weight:600">${esc(r.reason)}</div>${r.note ? `<div class="small muted" style="line-height:1.45">${esc(r.note)}</div>` : ""}</div>`).join("")}` : `<div class="empty">Quando un giocatore segnala un errore in una domanda, lo trovi qui.</div>`}
+  <textarea id="reportsAll" hidden>${esc(txt)}</textarea>`;
+}
+
+/* ---------- Codice di salvataggio ---------- */
+async function makeCode() {
+  const json = JSON.stringify(Object.assign({}, DB, { saved: null }));
+  try {
+    const cs = new CompressionStream("deflate-raw");
+    const buf = await new Response(new Blob([json]).stream().pipeThrough(cs)).arrayBuffer();
+    let bin = ""; new Uint8Array(buf).forEach(b => bin += String.fromCharCode(b));
+    return "QM1Z-" + btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  } catch (e) {
+    return "QM1J-" + btoa(unescape(encodeURIComponent(json))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+}
+async function readCode(code) {
+  code = (code || "").trim().replace(/\s+/g, "");
+  const m = /^QM1([ZJ])-([A-Za-z0-9_-]+)$/.exec(code); if (!m) throw new Error("formato");
+  const b64 = m[2].replace(/-/g, "+").replace(/_/g, "/") + "===".slice((m[2].length + 3) % 4);
+  const bin = atob(b64);
+  let json;
+  if (m[1] === "Z") { const bytes = Uint8Array.from(bin, c => c.charCodeAt(0)); json = await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).text(); }
+  else json = decodeURIComponent(escape(bin));
+  const d = JSON.parse(json); if (!d || !d.players || !Object.keys(d.players).length) throw new Error("vuoto");
+  return d;
+}
+function vSalvataggio() {
+  const players = Object.keys(DB.players);
+  return `${head("Per cambiare telefono", "Salva i progressi")}
+  <div class="muted" style="font-size:14px;line-height:1.5">I progressi restano su questo telefono. Per portarli su un altro, crea il codice, copialo e conservalo, per esempio mandandolo a te stesso per messaggio. Sul telefono nuovo incollalo qui sotto in "Carica i progressi".</div>
+  <span class="small muted" style="font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-top:6px">Crea il codice</span>
+  <div class="small muted">Contiene ${players.length === 1 ? "il giocatore " + esc(players[0]) : "tutti i " + players.length + " giocatori di questo telefono"}, con livelli, dischi, medaglie e classifiche.</div>
+  ${S.saveCode ? `<textarea id="saveCode" readonly style="min-height:110px;border-radius:12px;border:1px solid var(--line2);background:var(--bg);color:var(--fg);padding:10px;font-family:ui-monospace,Menlo,monospace;font-size:11px;word-break:break-all">${esc(S.saveCode)}</textarea><button class="btn" data-act="copycode">Copia il codice</button>` : `<button class="btn" data-act="makecode">Crea il codice</button>`}
+  <span class="small muted" style="font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-top:10px">Carica i progressi</span>
+  <label for="loadCode" class="small muted">Incolla qui il codice che hai salvato</label>
+  <textarea id="loadCode" style="min-height:90px;border-radius:12px;border:1px solid var(--line2);background:var(--card);color:var(--fg);padding:10px;font-family:ui-monospace,Menlo,monospace;font-size:11px;word-break:break-all" placeholder="QM1Z-...">${esc(S.loadDraft || "")}</textarea>
+  ${S.loadConfirm ? `<div class="card" style="padding:14px;border-radius:14px;border-color:var(--err);display:flex;flex-direction:column;gap:10px"><span style="font-size:14px;font-weight:700">Sostituire i progressi di questo telefono?</span><span class="small muted">Il codice contiene ${S.loadConfirm.n} ${S.loadConfirm.n === 1 ? "giocatore" : "giocatori"} (${esc(S.loadConfirm.names)}). I progressi attuali di questo telefono verranno sostituiti.</span><div class="grid2"><button class="btn ghost" data-act="loadno">Annulla</button><button class="btn" style="background:var(--err)" data-act="loadyes">Sostituisci</button></div></div>` : `<button class="btn ghost" data-act="loadcode">Carica i progressi</button>`}`;
+}
+
+/* ---------- Utilità ---------- */
+const $app = document.getElementById("app");
+const S = { view: "home", game: null, temaSel: null, clTab: 0, exitAsk: false, discQueue: [], after: "home", confirmReset: false, toast: "" };
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function rnd(a) { return a[Math.floor(Math.random() * a.length)]; }
+function fmt(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
+function dayStr(d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+function level(a) { let l = 1; LEVELS.forEach((x, i) => { if (a >= x[1]) l = i + 1; }); return l; }
+function levelName(l) { return LEVELS[l - 1][0]; }
+function nextDisc(a) { return DISCS.find(d => a < d.soglia) || null; }
+function genres() {
+  const m = {};
+  QUESTIONS.forEach(q => { m[q.g] = (m[q.g] || 0) + 1; });
+  return Object.keys(m).filter(g => m[g] >= 2).sort((a, b) => m[b] - m[a]).map((g, i) => ({ nome: g, n: m[g], color: GENRE_COLORS[i % GENRE_COLORS.length] }));
+}
+function sigla(g) { const w = g.replace(/[^A-Za-zÀ-ú0-9' ]/g, " ").split(/\s+/).filter(x => x && !["e", "di", "'"].includes(x.toLowerCase())); if (/\d/.test(g)) return (g.match(/\d+/) || [""])[0]; return (w[0] ? w[0][0] : "?").toUpperCase() + (w[1] ? w[1][0].toUpperCase() : ""); }
+
+/* ---------- Ascolti, dischi, medaglie ---------- */
+function weekId(s) { return Math.floor((dayNum(s) + 3) / 7); }
+function nextStreak(last, cur, field) {
+  const p = P(), today = dayStr(new Date()), y = new Date(); y.setDate(y.getDate() - 1); const y2 = new Date(); y2.setDate(y2.getDate() - 2);
+  if (last === dayStr(y)) return cur + 1;
+  if (last === dayStr(y2) && cur >= 2) {
+    p.rest = p.rest || {};
+    if (p.rest[field] !== weekId(today)) { p.rest[field] = weekId(today); S.restUsed = true; return cur + 1; }
+  }
+  return 1;
+}
+function touchDay() {
+  const p = P(), today = dayStr(new Date());
+  if (p.lastDay === today) return;
+  p.streak = nextStreak(p.lastDay, p.streak || 0, "streak");
+  p.lastDay = today; track("giorni", 1); p.days = (p.days || 0) + 1; if (p.days >= 100) giveMedal("fedele"); p.maxStreak = Math.max(p.maxStreak || 0, p.streak);
+  if (p.streak >= 7) giveMedal("tour7");
+  if (p.streak >= 30) giveMedal("tour30");
+}
+function touchDaily(s) {
+  const p = P(); p.daily = p.daily || {};
+  const y = new Date(); y.setDate(y.getDate() - 1);
+  p.dailyStreak = nextStreak(p.lastDaily, p.dailyStreak || 0, "daily"); p.lastDaily = s;
+  giveMedal("sfida1"); if (p.dailyStreak >= 7) giveMedal("settimana");
+}
+function bonus(n) { return P().streak >= 3 ? Math.round(n * 1.1) : n; }
+function addAscolti(n) {
+  const p = P(), before = level(p.ascolti); p.ascolti += n;
+  const after = level(p.ascolti); if (after > before) S.pendingLevel = after;
+  DISCS.forEach(d => { if (p.ascolti >= d.soglia && !p.discs.includes(d.id)) { p.discs.push(d.id); S.discQueue.push(d.id); } });
+}
+function giveMedal(id) { const p = P(); if (!p.medals.includes(id)) { p.medals.push(id); S.medalSound = true; p.medalDates = p.medalDates || {}; p.medalDates[id] = dayStr(new Date()); S.newMedals = (S.newMedals || []).concat(id); } }
+function unseenCount() { const p = P(); return p.medals.filter(id => !(p.seen || []).includes(id)).length; }
+const MEDAL_COLS = [["#D9967E", "#8FB8B0"], ["#A9C7B0", "#D4B98C"], ["#8FB8B0", "#DDAEA7"]];
+function medalSvg(i, ok, w) {
+  const m = MEDALS[i], c = MEDAL_COLS[i % 3];
+  return `<svg width="${w}" height="${Math.round(w * 52 / 44)}" viewBox="0 0 44 52" aria-hidden="true"><path d="M9 0h11l4 20H13z" fill="${ok ? c[0] : "#475960"}"/><path d="M35 0H24l-4 20h11z" fill="${ok ? c[1] : "#3A494F"}"/><circle cx="22" cy="32" r="18" fill="${ok ? "url(#gCoin)" : "#56686F"}"/><circle cx="22" cy="32" r="14.5" fill="none" stroke="${ok ? "#B8913A" : "#475960"}" stroke-width="1.4"/>${ok ? '<ellipse cx="16" cy="25" rx="5" ry="2.4" fill="#FFFFFF" opacity=".45" transform="rotate(-30 16 25)"/>' : ""}<text x="22" y="37" text-anchor="middle" font-family="Oswald, sans-serif" font-size="${m.sym.length > 2 ? 11 : 15}" font-weight="700" fill="#1F2A2E">${ok ? esc(m.sym) : "?"}</text></svg>`;
+}
+function sleeveSvg(w) {
+  return `<svg width="${w}" height="${Math.round(w * 52 / 60)}" viewBox="0 0 60 52" aria-hidden="true"><circle cx="38" cy="26" r="21" fill="#0C1113"/><circle cx="38" cy="26" r="16" fill="none" stroke="#24302F"/><circle cx="38" cy="26" r="11" fill="none" stroke="#24302F"/><circle cx="38" cy="26" r="6" fill="#E8C874"/><rect x="2" y="3" width="44" height="46" rx="3" fill="url(#gSleeve)"/><circle cx="24" cy="24" r="12" fill="none" stroke="#1F2A2E" stroke-opacity=".35" stroke-width="1.2"/><circle cx="24" cy="24" r="7" fill="none" stroke="#1F2A2E" stroke-opacity=".35" stroke-width="1.2"/><path d="M26 18v10" stroke="#1F2A2E" stroke-width="1.6" stroke-linecap="round"/><ellipse cx="23.6" cy="28.4" rx="2.6" ry="2" fill="#1F2A2E"/><rect x="2" y="41" width="44" height="8" fill="#1F2A2E" fill-opacity=".18"/></svg>`;
+}
+function vReveal() {
+  const r = S.reveal; if (!r) return "";
+  const i = MEDALS.findIndex(m => m.id === r.id), m = MEDALS[i], p = P();
+  const d = (p.medalDates || {})[m.id];
+  const notes = r.fresh ? Array.from({ length: 12 }, (_, k) => { const x = Math.round((k / 11 - .5) * 220 + (k % 2 ? 14 : -14)); const glyph = ["\u266A", "\u266B", "\u2669", "\u266C"][k % 4]; const col = ["#A9C7B0", "#E8C874", "#8FB8B0", "#D9967E"][k % 4]; return `<span class="fnote" style="left:calc(50% + ${x}px);color:${col};animation-delay:${(0.15 + (k % 6) * 0.12).toFixed(2)}s;font-size:${18 + (k % 3) * 6}px">${glyph}</span>`; }).join("") : "";
+  return `<div class="modal reveal ${r.closing ? "closing" : ""} ${r.fresh ? "fresh" : ""} ${r.animated && !r.closing ? "still" : ""}" data-act="closereveal" role="dialog" aria-modal="true" aria-label="Medaglia ${esc(m.nome)}">
+    <div class="rbox">
+      <div class="stage">${notes}${r.fresh ? `<div class="sleeve">${sleeveSvg(150)}</div>` : ""}<div class="bigmedal">${medalSvg(i, true, 150)}</div></div>
+      <div class="rtext">${r.fresh ? '<span class="eyebrow" style="color:var(--gold);letter-spacing:3px">Nuova medaglia</span>' : ""}<span class="disp" style="font-size:30px">${esc(m.nome)}</span><span class="muted" style="font-size:15px">${esc(m.desc)}</span>${d ? `<span class="small muted">Conquistata il ${esc(longDate(d))}</span>` : ""}<span class="small" style="color:var(--accent);margin-top:10px">Tocca per chiudere</span></div>
+    </div></div>`;
+}
+function longDate(s) { const [Y, M, D] = s.split("-").map(Number); return D + " " + ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre"][M - 1] + " " + Y; }
+
+/* ---------- Partita ---------- */
+function pickScalata(levelN, used, exclude) {
+  const order = [levelN, levelN - 1, levelN + 1, levelN - 2, levelN + 2, levelN - 3, levelN + 3, levelN - 4, levelN + 4];
+  for (const d of order) {
+    const pool = QUESTIONS.filter(q => q.d === d && !used.has(q.id) && q.id !== exclude);
+    if (pool.length) return rnd(pool);
+  }
+  return null;
+}
+function prep(q) { return shuffle([{ t: q.ok, c: true }, { t: q.w[0], w1: true }, { t: q.w[1] }, { t: q.w[2] }]); }
+function timeFor(idx) { return idx < 5 ? 15 : idx < 10 ? 20 : 30; }
+function setQ(q) {
+  const g = S.game; g.q = q; g.used.add(q.id); g.ans = prep(q); g.sel = null; g.removed = false; g.hint = false; g.phase = "ask"; g.timedOut = false;
+  if (g.mode === "scalata" || g.mode === "sfida") { g.tMax = (g.mode === "sfida" ? DAILY_TIME : timeFor(g.idx)) * 1000; g.tLeft = g.tMax; }
+}
+function timerHtml() {
+  const g = S.game, frac = Math.max(0, Math.min(1, g.tLeft / g.tMax)), sec = Math.ceil(g.tLeft / 1000), c = 2 * Math.PI * 19, low = sec <= 5;
+  return `<div class="timer ${low ? "low" : ""}" id="timer" role="timer" aria-label="${sec} secondi rimasti"><svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="19" fill="var(--card)" stroke="var(--track)" stroke-width="4"/><circle id="tring" cx="22" cy="22" r="19" fill="none" stroke="${low ? "#E3A58C" : "#A9C7B0"}" stroke-width="4" stroke-linecap="round" stroke-dasharray="${(c * frac).toFixed(2)} ${c.toFixed(2)}"/></svg><b id="tnum">${sec}</b></div>`;
+}
+let lastTick = performance.now();
+setInterval(() => {
+  const now = performance.now(), dt = now - lastTick; lastTick = now;
+  const g = S.game;
+  if (S.view !== "game" || !g || !g.tMax || g.phase !== "ask" || S.exitAsk || document.hidden) return;
+  g.tLeft -= dt;
+  if (g.tLeft <= 0) { timeout(); return; }
+  const el = document.getElementById("timer"); if (!el) return;
+  const old = el.querySelector("b").textContent, sec = String(Math.ceil(g.tLeft / 1000));
+  const c = 2 * Math.PI * 19, frac = Math.max(0, Math.min(1, g.tLeft / g.tMax));
+  document.getElementById("tring").setAttribute("stroke-dasharray", (c * frac).toFixed(2) + " " + c.toFixed(2));
+  if (old !== sec) { el.outerHTML = timerHtml(); if (+sec <= 5) SFX.tick(); save(); }
+}, 100);
+document.addEventListener("visibilitychange", () => { lastTick = performance.now(); if (document.hidden) save(); });
+window.addEventListener("pagehide", () => save());
+function timeout() {
+  const g = S.game; g.tLeft = 0; g.sel = null; g.phase = "feedback"; g.lastOk = false; g.timedOut = true; g.lastPts = 0; g.results.push(false); g.streakRun = 0;
+  SFX.timeout(); addWrong(g.q.id); statAdd(g.q, false);
+  if (g.mode === "scalata") finish();
+  if (g.mode === "sfida") saveDailyProgress();
+  save(); render();
+}
+function start(mode, genre) {
+  touchDay();
+  S.newMedals = [];
+  let ps = true;
+  if (mode !== "sfida") { psUsed(); const p = P(); ps = p.ps.n < PS_GAMES; p.ps.n++; }
+  const g = { ps, mode, genre, idx: 0, results: [], gained: 0, aids: { stonata: true, maestro: true, bis: true }, usedAids: false, used: new Set(), streakRun: 0, bestRun: 0 };
+  if (mode === "sfida") {
+    const s = dayStr(new Date()); g.day = s; g.list = dailyQuestions(s); g.total = g.list.length;
+    g.aids = { stonata: false, maestro: false, bis: false };
+    touchDaily(s); P().daily[s] = { res: [], done: false };
+  } else if (mode === "duello") {
+    g.list = shuffle(QUESTIONS).slice(0, 10); g.total = g.list.length; g.aids = { stonata: false, maestro: false, bis: false }; g.duel = S.pendingDuel;
+  } else if (mode === "ripasso") {
+    g.list = shuffle(wrongList().map(x => x.q)).slice(0, 10); g.total = g.list.length;
+    if (!g.total) { toast("Non hai stonate da ripassare"); S.view = "home"; render(); return; }
+  } else if (mode !== "scalata") {
+    const pool = mode === "tema" ? QUESTIONS.filter(q => q.g === genre) : QUESTIONS;
+    g.list = shuffle(pool).slice(0, 10);
+    g.total = g.list.length;
+  } else g.total = 15;
+  S.game = g; S.exitAsk = false;
+  nextQ(); S.view = "game"; save(); render(); window.scrollTo(0, 0);
+}
+function nextQ() {
+  const g = S.game;
+  let q = g.mode === "scalata" ? pickScalata(Math.ceil((g.idx + 1) / 3), g.used) : g.list[g.idx];
+  if (!q) q = rnd(QUESTIONS);
+  setQ(q);
+}
+function answer(i) {
+  const g = S.game; if (g.phase !== "ask") return;
+  const a = g.ans[i]; if (g.removed && a.w1) return;
+  g.sel = i; g.phase = "feedback"; g.lastOk = !!a.c; g.results.push(!!a.c);
+  if (a.c && g.tMax && g.tLeft <= 1000 && !(g.mode === "duello" && g.duel && g.duel.turn === 1)) giveMedal("ultimo");
+  const guest = g.mode === "duello" && g.duel && g.duel.turn === 1;
+  if (!guest) statAdd(g.q, !!a.c);
+  if (guest) { g.lastPts = 0; if (a.c) SFX.ok(); else SFX.ko(); save(); render(); return; }
+  if (a.c) {
+    const pts = bonus(g.mode === "sfida" ? 50 : val(g.mode === "scalata" ? 5 * (g.idx + 1) : g.mode === "ripasso" ? 10 : 20));
+    g.lastPts = pts; g.gained += pts; addAscolti(pts); giveMedal("prima");
+    g.streakRun++; g.bestRun = Math.max(g.bestRun, g.streakRun);
+  } else { g.lastPts = 0; g.streakRun = 0; }
+  if (a.c) { track("giuste", 1); if (removeWrong(g.q.id)) { g.recovered = (g.recovered || 0) + 1; track("stonate", 1); } } else addWrong(g.q.id);
+  if (g.mode === "sfida") { if (a.c) tone(dailyMelody(g.day)[g.idx].f, 0, .7, { vol: .26 }), vibe(30); else SFX.ko(); saveDailyProgress(); }
+  else if (a.c) SFX.ok(); else SFX.ko();
+  if (g.mode === "scalata" && !a.c) finish();
+  save(); render();
+}
+function saveDailyProgress() { const g = S.game, p = P(); p.daily = p.daily || {}; p.daily[g.day] = { res: g.results.slice(), done: g.results.length >= g.total }; }
+function next() {
+  const g = S.game; g.idx++;
+  if (g.mode === "duello" && g.duel.turn === 0 && g.idx >= g.total) { g.duel.res[0] = g.results.slice(); S.view = "handoff"; save(); render(); window.scrollTo(0, 0); return; }
+  if (g.idx >= g.total) { if (g.mode === "duello") g.duel.res[1] = g.results.slice(); finish(); goAfterGame(g.mode === "sfida" ? "sfidares" : g.mode === "duello" ? "duelres" : "result"); return; }
+  nextQ(); save(); render(); window.scrollTo(0, 0);
+}
+function finish() {
+  const g = S.game; if (g.done) return; g.done = true;
+  if (g.ps && g.mode !== "sfida" && P().ps && P().ps.n >= PS_GAMES) giveMedal("serata");
+  const p = P(); p.games++;
+  if (p.games >= 10) giveMedal("dieci");
+  const right = g.results.filter(Boolean).length;
+  const date = dayStr(new Date());
+  if (g.mode === "scalata") {
+    const notes = g.results[g.results.length - 1] ? g.results.length : g.results.length - 1;
+    g.notes = notes;
+    if (notes === 15) {
+      g.bonus = bonus(val(300)); g.gained += g.bonus; addAscolti(g.bonus);
+      giveMedal("cima"); if (!g.usedAids) giveMedal("senza");
+    }
+    g.record = notes > p.bestNote; p.bestNote = Math.max(p.bestNote, notes); track("nota", notes);
+    DB.history.push({ player: p.name, mode: "scalata", v: notes, date });
+  } else if (g.mode === "duello") {
+    const a = g.duel.res[0].filter(Boolean).length, b = g.duel.res[1].filter(Boolean).length;
+    p.duels = (p.duels || 0) + 1; giveMedal("duello1");
+    if (a > b) { const w = bonus(val(50)); g.gained += w; addAscolti(w); p.duelWins = (p.duelWins || 0) + 1; if (p.duelWins >= 5) giveMedal("imbatt"); }
+    DB.history.push({ player: p.name, mode: "duello", v: a, of: g.total, rival: g.duel.names[1], vs: b, date });
+  } else if (g.mode === "ripasso") {
+    g.right = right;
+  } else if (g.mode === "sfida") {
+    g.right = right;
+    if (right === 5) { g.bonus = bonus(100); g.gained += g.bonus; addAscolti(g.bonus); giveMedal("cinque"); track("sfida5", 1); }
+    track("sfide", 1);
+    p.daily[g.day] = { res: g.results.slice(), done: true };
+    DB.history.push({ player: p.name, mode: "sfida", v: right, of: 5, date });
+  } else {
+    g.right = right;
+    if (g.mode === "veloce") { if (right >= 8) track("veloce8", 1); g.record = right > p.bestVeloce; p.bestVeloce = Math.max(p.bestVeloce, right); if (right === g.total && g.total >= 10) giveMedal("pieno"); }
+    if (g.mode === "tema") { track("generi", g.genre); if (!p.genres.includes(g.genre)) p.genres.push(g.genre); if (p.genres.length >= 3) giveMedal("eclettico"); if (right === g.total) giveMedal("special"); }
+    DB.history.push({ player: p.name, mode: g.mode, v: right, of: g.total, genre: g.genre, date });
+  }
+  DB.history = DB.history.slice(-200);
+  save();
+}
+function goAfterGame(target) {
+  S.after = target;
+  S.view = S.discQueue.length ? "disco" : target;
+  render(); window.scrollTo(0, 0);
+  if (S.view === "disco") SFX.disc();
+  else if (S.medalSound) setTimeout(SFX.medal, S.view === "sfidares" ? 2900 : 600);
+  S.medalSound = false;
+  if (S.view === "sfidares") setTimeout(() => { const g = S.game; if (g) { playMelody(g.day, g.results); animateMelody(g.results); } }, 450);
+}
+function useAid(k) {
+  const g = S.game; if (g.phase !== "ask" || !g.aids[k]) return;
+  g.aids[k] = false; g.usedAids = true;
+  if (k === "stonata") { g.removed = true; }
+  if (k === "maestro") { g.hint = true; if (g.mode === "scalata") { g.tLeft += 10000; g.tMax = Math.max(g.tMax, g.tLeft); } }
+  if (k === "bis") {
+    let q;
+    if (g.mode === "scalata") q = pickScalata(g.q.d, g.used, g.q.id);
+    else {
+      const pool = (g.mode === "tema" ? QUESTIONS.filter(x => x.g === g.genre) : QUESTIONS).filter(x => !g.used.has(x.id) && !g.list.includes(x));
+      q = pool.length ? rnd(pool) : null;
+    }
+    if (q) { if (g.list) g.list[g.idx] = q; setQ(q); }
+    else { g.aids.bis = false; toast("Non ci sono altre domande disponibili"); }
+  }
+  save(); render();
+}
+function toast(t) {
+  let el = document.getElementById("toastEl");
+  if (!el) { el = document.createElement("div"); el.id = "toastEl"; el.className = "toast"; el.setAttribute("role", "status"); document.body.appendChild(el); }
+  el.textContent = t; el.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => { el.hidden = true; }, 2600);
+}
+
+/* ---------- Disegni ---------- */
+const ICON = {
+  x: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C5D0CF" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  back: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C5D0CF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>',
+  play: '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z" fill="#1F2A2E"/></svg>',
+  arrow: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F2A2E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  retry: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F2A2E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4.5h4.5"/></svg>',
+  check: c => `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`,
+  cross: c => `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="3.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>`,
+  bulb: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8FB8B0" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.8V16h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3z"/></svg>',
+  star: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 16.8 6.1 20.1l1.3-6.6L2.5 8.9l6.6-.8z" fill="#A9C7B0"/></svg>',
+  medal: '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h4l2 6H9z" fill="#D9967E"/><path d="M13 2h4l-2 6h-4z" fill="#8FB8B0"/><circle cx="12" cy="15" r="6.5" fill="#A9C7B0"/><circle cx="12" cy="15" r="4.3" fill="none" stroke="#6E8F78" stroke-width="1.2"/></svg>',
+  podium: '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="7" width="6" height="14" rx="1.5" fill="#A9C7B0"/><rect x="2.5" y="11" width="6" height="10" rx="1.5" fill="#C5D0CF"/><rect x="15.5" y="14" width="6" height="7" rx="1.5" fill="#D9967E"/></svg>',
+  people: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#A9C7B0" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 19c.6-3.2 3-5 6-5s5.4 1.8 6 5"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2c2.6.2 4.5 1.9 5 4.8"/></svg>',
+  flame: '<svg width="32" height="32" viewBox="0 0 24 24" aria-hidden="true" style="flex:none"><path d="M12 2c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3-1-3 0-6 1-8.5z" fill="#D9967E"/><path d="M12 11c.6 1.6 2.4 2.6 2.4 4.6a2.4 2.4 0 0 1-4.8 0c0-1.3.8-2.1 1.4-2.6 0 .9.4 1.4 1 1.4-.4-1.2 0-2.4 0-3.4z" fill="#F2D3B8"/></svg>'
+};
+const AID_ICON = {
+  stonata: '<svg width="38" height="38" viewBox="0 0 32 32" aria-hidden="true"><rect x="15.2" y="5.5" width="2.2" height="18" rx="1" fill="#E3A58C"/><path d="M17.4 5.5 C22 7.5 24.5 11 22.5 15.5 C22.4 12.4 20.2 10.6 17.4 10.2 Z" fill="#E3A58C"/><ellipse cx="11.8" cy="23.6" rx="5.6" ry="4.2" transform="rotate(-22 11.8 23.6)" fill="#D9967E"/><ellipse cx="10.4" cy="22.4" rx="2" ry="1.1" transform="rotate(-22 10.4 22.4)" fill="#FFFFFF" opacity=".45"/><path d="M8 20.5l3 2-1.5 1.6 3 2.2" fill="none" stroke="#2A373C" stroke-width="1.1" stroke-linejoin="round"/><circle cx="25" cy="7" r="5.6" fill="#C9675B" stroke="#2A373C" stroke-width="1.4"/><path d="M22.8 4.8l4.4 4.4M27.2 4.8l-4.4 4.4" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  maestro: '<svg width="58" height="58" viewBox="0 0 42 42" aria-hidden="true" style="margin-top:8px"><path d="M33 3.2l.7 1.6 1.6.7-1.6.7-.7 1.6-.7-1.6-1.6-.7 1.6-.7z" fill="#A9C7B0"/><path d="M38.5 9l.5 1.1 1.1.5-1.1.5-.5 1.1-.5-1.1-1.1-.5 1.1-.5z" fill="#C6DDD8"/><path d="M33.5 16.5 L39.5 6" stroke="#F5F5F2" stroke-width="1.2" stroke-linecap="round"/><path d="M28.5 30 C30 25 31.5 20 33 17" fill="none" stroke="#15191C" stroke-width="4.2" stroke-linecap="round"/><circle cx="33.4" cy="16.3" r="2.1" fill="#E8C3A0"/><path d="M12 30 C10 27 8 24.5 6.5 22.5" fill="none" stroke="#15191C" stroke-width="4.2" stroke-linecap="round"/><circle cx="6.2" cy="21.8" r="2" fill="#E8C3A0"/><path d="M8.5 42 C8.5 32 13.5 27.5 21 27.5 C28.5 27.5 33.5 32 33.5 42 Z" fill="#15191C"/><path d="M17.2 27.9 L21 36 L24.8 27.9 Z" fill="#F2F2F0"/><path d="M18 29 l3 1.5 -3 1.5 Z M24 29 l-3 1.5 3 1.5 Z" fill="#A9C7B0"/><circle cx="21" cy="30.5" r=".9" fill="#6E8F78"/><rect x="19.4" y="23.5" width="3.2" height="4.5" fill="#D9AE88"/><circle cx="21" cy="18" r="6.2" fill="#E8C3A0"/><path d="M14.3 17 C12.8 11.5 15.8 8.6 18.6 9.6 C19.6 7 23.2 7 24.2 9.4 C27.2 8.4 29.6 11.6 27.7 17 C27.2 14 25.8 13 24.2 13.4 C22.6 12 19.2 12 17.6 13.4 C16 13 14.8 14.4 14.3 17 Z" fill="#E9ECEE"/><circle cx="14.4" cy="18.2" r="2.1" fill="#E9ECEE"/><circle cx="27.6" cy="18.2" r="2.1" fill="#E9ECEE"/><path d="M18 18.6 q1 .8 2 0 M22 18.6 q1 .8 2 0" fill="none" stroke="#5A4030" stroke-width=".8" stroke-linecap="round"/><path d="M19.6 21.6 q1.4 .9 2.8 0" fill="none" stroke="#B5705A" stroke-width=".8" stroke-linecap="round"/></svg>',
+  bis: '<svg width="40" height="40" viewBox="0 0 32 32" aria-hidden="true"><path d="M5.5 14 A10.5 10.5 0 0 1 24 8.5" fill="none" stroke="#8FB8B0" stroke-width="3.2" stroke-linecap="round"/><path d="M27.6 5.2 L27 12.6 L20.4 10.2 Z" fill="#8FB8B0"/><path d="M26.5 18 A10.5 10.5 0 0 1 8 23.5" fill="none" stroke="#C6DDD8" stroke-width="3.2" stroke-linecap="round"/><path d="M4.4 26.8 L5 19.4 L11.6 21.8 Z" fill="#C6DDD8"/><text x="16" y="19" text-anchor="middle" font-family="Oswald, sans-serif" font-size="8" font-weight="700" fill="#E4EBE8">BIS</text></svg>'
+};
+function micSvg() {
+  let ribs = ""; for (let y = 11; y <= 52; y += 4.5) ribs += `<rect x="20" y="${y}" width="34" height="2.3" fill="url(#gRib)"/>`;
+  return `<svg class="mic" viewBox="0 0 74 100" aria-hidden="true"><path d="M17 31v5a20 20 0 0 0 40 0v-5" fill="none" stroke="#3E4247" stroke-width="5" stroke-linecap="round"/><path d="M17 31v5a20 20 0 0 0 40 0v-5" fill="none" stroke="url(#gChrome)" stroke-width="3.2" stroke-linecap="round"/><rect x="34.5" y="64" width="5" height="27" fill="url(#gChrome)"/><ellipse cx="37" cy="93" rx="17" ry="4.5" fill="url(#gChrome)"/><rect x="33.5" y="58" width="7" height="7" rx="1" fill="url(#gChrome)"/><path d="M37 4 C48 4 54 14 54 29 C54 45 48 56 37 58 C26 56 20 45 20 29 C20 14 26 4 37 4 Z" fill="url(#gChrome)"/><path d="M37 9 C46 9 50 17 50 29 C50 42 46 52 37 54 C28 52 24 42 24 29 C24 17 28 9 37 9 Z" fill="url(#gMesh)"/><g clip-path="url(#micClip)">${ribs}</g><rect x="35.6" y="5" width="2.8" height="52" rx="1.4" fill="url(#gChrome)"/><ellipse cx="29" cy="25" rx="2" ry="12" fill="#FFFFFF" opacity=".5"/><rect x="29" y="55.5" width="16" height="5" rx="2.5" fill="url(#gGold)"/><circle cx="17" cy="31" r="3.4" fill="url(#gChrome)"/><circle cx="57" cy="31" r="3.4" fill="url(#gChrome)"/></svg>`;
+}
+function vinylSvg(cls, label) {
+  let g = ""; [96, 88, 80, 72, 64, 56].forEach((r, i) => g += `<circle cx="105" cy="105" r="${r}" fill="none" stroke="${i % 3 === 2 ? "#2E3C41" : "#1E292C"}" stroke-width="${i % 3 === 2 ? 1.2 : .7}"/>`);
+  return `<svg class="${cls}" viewBox="0 0 210 210" aria-hidden="true"><circle cx="105" cy="105" r="104" fill="url(#gDisc)"/>${g}<path d="M105 105 L15 52 A104 104 0 0 1 52 15 Z" fill="url(#gSheen)"/><path d="M105 105 L195 158 A104 104 0 0 1 158 195 Z" fill="url(#gSheen)"/><circle cx="105" cy="105" r="33" fill="#0C1113"/><circle cx="105" cy="105" r="26" fill="${label || "url(#gLabel)"}"/><circle cx="105" cy="105" r="22.5" fill="none" stroke="#5E7D68" stroke-width=".7"/><circle cx="105" cy="105" r="3.2" fill="#E4EBE8"/><circle cx="105" cy="105" r="1.6" fill="#0C1113"/></svg>`;
+}
+function keysSvg() {
+  let w = "", b = "", s = "", tops = "";
+  for (let i = 0; i < 14; i++) w += `<rect x="${1 + i * 25}" y="8.8" width="23.4" height="41.2" rx="1.5" fill="url(#gKey)"/>`;
+  [17, 42, 92, 117, 142, 192, 217, 267, 292, 317].forEach(x => { s += `<rect x="${x + 2}" y="8.8" width="14" height="28" rx="2" fill="#000" opacity=".2"/>`; b += `<rect x="${x}" y="8.8" width="14" height="26" rx="1.8" fill="url(#gBlack)"/>`; tops += `<rect x="${x + 2}" y="8.8" width="10" height="22" rx="1.2" fill="url(#gBlackTop)"/>`; });
+  return `<svg class="keys" viewBox="0 0 350 50" preserveAspectRatio="none" aria-hidden="true"><rect width="350" height="50" fill="#0E0E0E"/><rect width="350" height="7" fill="url(#gWood)"/><rect y="7" width="350" height="1.8" fill="#8E1F24"/>${w}<rect y="8.8" width="350" height="3" fill="#000" opacity=".3"/>${s}${b}${tops}</svg>`;
+}
+function drumSvg() {
+  return `<svg class="inst" viewBox="0 0 110 76" aria-hidden="true"><ellipse cx="55" cy="60" rx="38" ry="10" fill="#4A4F55"/><rect x="17" y="34" width="76" height="26" fill="url(#gLacquer)"/><path d="M17 60 A38 10 0 0 0 93 60 Z" fill="url(#gLacquer)"/><path d="M17 59 A38 10 0 0 0 93 59 L93 62 A38 10 0 0 1 17 62 Z" fill="url(#gChrome)"/><rect x="29" y="35" width="4" height="27" fill="#FFF" opacity=".16"/><path d="M23 39.5v3M37 42.8v3.4M55 44v4M73 42.8v3.4M87 39.5v3M23 52.3v6.7M37 56.2v5.8M55 58v6M73 56.2v5.8M87 52.3v6.7" stroke="#C3C8CE" stroke-width="1.4"/><rect x="20.5" y="42.3" width="5" height="10" rx="2.2" fill="url(#gChrome)"/><rect x="34.5" y="46.2" width="5" height="10" rx="2.2" fill="url(#gChrome)"/><rect x="52.5" y="48" width="5" height="10" rx="2.2" fill="url(#gChrome)"/><rect x="70.5" y="46.2" width="5" height="10" rx="2.2" fill="url(#gChrome)"/><rect x="84.5" y="42.3" width="5" height="10" rx="2.2" fill="url(#gChrome)"/><ellipse cx="55" cy="34" rx="38" ry="10" fill="url(#gChrome)"/><ellipse cx="55" cy="33.6" rx="35" ry="8.4" fill="url(#gHead)"/><ellipse cx="47" cy="31.5" rx="15" ry="2.6" fill="#FFF" opacity=".7"/><rect x="28" y="8.2" width="52" height="3.6" rx="1.8" fill="url(#gStick)" transform="rotate(22.6 28 10)"/><ellipse cx="27" cy="10" rx="3.2" ry="2.3" fill="#F3E2C2" transform="rotate(22.6 27 10)"/><rect x="84" y="6.2" width="52" height="3.6" rx="1.8" fill="url(#gStick)" transform="rotate(155.4 84 8)"/><ellipse cx="85" cy="8" rx="3.2" ry="2.3" fill="#F3E2C2" transform="rotate(155.4 85 8)"/></svg>`;
+}
+function guitarSvg() {
+  const body = "M50 58 C38 58 31 62 31 72 C31 79 35 82 35 86 C35 90 27 94 27 104 C27 114 37 120 50 120 C63 120 73 114 73 104 C73 94 65 90 65 86 C65 82 69 79 69 72 C69 62 62 58 50 58 Z";
+  let pegs = ""; [2.5, 6.5, 10.5].forEach(y => pegs += `<rect x="40.5" y="${y}" width="4" height="2.2" rx="1.1" fill="url(#gChrome)"/><rect x="55.5" y="${y}" width="4" height="2.2" rx="1.1" fill="url(#gChrome)"/>`);
+  return `<svg class="inst" viewBox="0 0 110 76" aria-hidden="true" style="top:-14px;right:-38px;width:200px;height:138px"><g transform="translate(55 38) rotate(-58) scale(.7) translate(-50 -60)"><path d="${body}" fill="#1E0E05" stroke="#1E0E05" stroke-width="3"/><path d="${body}" fill="url(#gBurst)" stroke="#F1E3C6" stroke-width="1.2"/><circle cx="50" cy="82" r="9" fill="none" stroke="#EBDDBF" stroke-width="1.4"/><circle cx="50" cy="82" r="6.6" fill="#120A05"/><path d="M57 89 C62 87 66 91 65 96 C64 100 59 100 57 97 Z" fill="#2A1208" opacity=".85"/><rect x="41" y="102.5" width="18" height="4.5" rx="2" fill="#24140A"/><rect x="46.5" y="14" width="7" height="46" fill="url(#gNeck)"/><path d="M46.5 18h7M46.5 22.5h7M46.5 26.8h7M46.5 30.8h7M46.5 34.6h7M46.5 38.2h7M46.5 41.6h7M46.5 44.8h7M46.5 47.8h7M46.5 50.6h7M46.5 53.2h7M46.5 55.6h7" stroke="#D8DCE0" stroke-width=".7"/><path d="M45.5 14 L44 2 Q44 0 46 0 L54 0 Q56 0 56 2 L54.5 14 Z" fill="#2A170C"/>${pegs}<path d="M47.8 13.5L44.5 104M48.68 13.5L46.7 104M49.56 13.5L48.9 104M50.44 13.5L51.1 104M51.32 13.5L53.3 104M52.2 13.5L55.5 104" stroke="#F4F1EA" stroke-width=".35"/></g></svg>`;
+}
+function staffSvg(cur, missed) {
+  let out = "";
+  for (let y = 20; y <= 48; y += 7) out += `<line x1="0" x2="350" y1="${y}" y2="${y}" stroke="#475960" stroke-width="1"/>`;
+  for (let k = 1; k <= 15; k++) {
+    const x = 18 + (k - 1) * 22.5, y = 62 - (k - 1) * 3.5;
+    if (y >= 55) out += `<line x1="${x - 9}" x2="${x + 9}" y1="55" y2="55" stroke="#475960"/>`;
+    if (y >= 62) out += `<line x1="${x - 9}" x2="${x + 9}" y1="62" y2="62" stroke="#475960"/>`;
+    if (y <= 13) out += `<line x1="${x - 9}" x2="${x + 9}" y1="13" y2="13" stroke="#475960"/>`;
+    const done = k < cur, now = k === cur, miss = now && missed;
+    const col = miss ? "#E3A58C" : done ? "#6E8F78" : now ? "#A9C7B0" : "#56686F";
+    const fill = done || now ? col : "none";
+    if (now) out += `<circle cx="${x}" cy="${y}" r="9" fill="${miss ? "rgba(227,165,140,.25)" : "rgba(169,199,176,.25)"}"/>`;
+    out += `<line x1="${x + 4.6}" x2="${x + 4.6}" y1="${y}" y2="${y - 19}" stroke="${col}" stroke-width="1.6"/><ellipse cx="${x}" cy="${y}" rx="5.4" ry="3.9" transform="rotate(-20 ${x} ${y})" fill="${fill}" stroke="${col}" stroke-width="1.6"/>`;
+  }
+  return `<svg class="staff" viewBox="0 0 350 72" role="img" aria-label="Nota ${cur} di 15">${out}</svg>`;
+}
+function cassetteSvg(x, y, w) {
+  const s = w / 180;
+  return `<g transform="translate(${x} ${y}) scale(${s})"><rect width="180" height="116" rx="8" fill="#2B2F33"/><rect x="4" y="4" width="172" height="108" rx="6" fill="none" stroke="#454B51"/><rect x="14" y="12" width="152" height="58" rx="4" fill="#F1E8DC"/><rect x="14" y="12" width="152" height="12" rx="4" fill="#D9967E"/><path d="M24 34h70M24 42h50" stroke="#8C7B6A" stroke-width="2" stroke-linecap="round"/><text x="150" y="21.5" text-anchor="end" font-family="Oswald, sans-serif" font-size="8" font-weight="700" fill="#2B2F33">DEMO</text><rect x="44" y="46" width="92" height="20" rx="10" fill="#1C1F22"/><circle cx="62" cy="56" r="7" fill="#F1E8DC"/><circle cx="118" cy="56" r="7" fill="#F1E8DC"/><circle cx="62" cy="56" r="3" fill="#1C1F22"/><circle cx="118" cy="56" r="3" fill="#1C1F22"/><rect x="78" y="51" width="24" height="10" rx="2" fill="#5A3A26"/><path d="M30 116 L44 88 H136 L150 116 Z" fill="#363B40"/><circle cx="66" cy="102" r="4" fill="#1C1F22"/><circle cx="114" cy="102" r="4" fill="#1C1F22"/><circle cx="16" cy="104" r="3" fill="#454B51"/><circle cx="164" cy="104" r="3" fill="#454B51"/></g>`;
+}
+function frameDiscSvg(d, who) {
+  let art;
+  if (d.kind === "demo") art = cassetteSvg(40, 70, 180);
+  else {
+    let rings = ""; [88, 80, 72, 64, 56, 48].forEach((r, i) => rings += `<circle cx="130" cy="122" r="${r}" fill="none" stroke="#000" stroke-opacity=".22" stroke-width="${i % 3 === 2 ? 1 : .6}"/>`);
+    art = `<circle cx="130" cy="122" r="94" fill="url(#${d.grad})"/>${rings}<path d="M130 122 L48 76 A94 94 0 0 1 84 40 Z" fill="url(#gShine)"/><path d="M130 122 L212 168 A94 94 0 0 1 176 204 Z" fill="url(#gShine)"/><circle cx="130" cy="122" r="30" fill="#1F2A2E"/><circle cx="130" cy="122" r="26" fill="none" stroke="#A9C7B0" stroke-width=".8"/><text x="130" y="116" text-anchor="middle" font-family="Oswald, sans-serif" font-size="7" font-weight="600" fill="#A9C7B0" letter-spacing="1">${esc(APP_NAME.toUpperCase())}</text><circle cx="130" cy="122" r="3" fill="#E4EBE8"/>` +
+      (d.x ? `<circle cx="212" cy="40" r="23" fill="#1F2A2E" stroke="#E9EEF0" stroke-width="2"/><text x="212" y="48" text-anchor="middle" font-family="Oswald, sans-serif" font-size="22" font-weight="700" fill="#E9EEF0">×${d.x}</text>` : "");
+  }
+  return `<svg width="232" height="286" viewBox="0 0 260 320" role="img" aria-label="${esc(d.nome)} incorniciato" style="flex:none;filter:drop-shadow(0 14px 24px rgba(0,0,0,.45))"><rect width="260" height="320" rx="6" fill="url(#gFrame)"/><rect x="9" y="9" width="242" height="302" rx="2" fill="none" stroke="#C9962E" stroke-width="1.5"/><rect x="13" y="13" width="234" height="294" fill="#111719"/>${art}<rect x="45" y="236" width="170" height="56" rx="3" fill="url(#gPlaque)"/><text x="130" y="257" text-anchor="middle" font-family="Oswald, sans-serif" font-size="13" font-weight="700" fill="#3A2A08" letter-spacing="2">${esc(d.nome.toUpperCase())}</text><text x="130" y="271" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" font-weight="600" fill="#4A360C">${fmt(d.soglia)} ascolti</text><text x="130" y="283" text-anchor="middle" font-family="Inter, sans-serif" font-size="8" fill="#5A4410">assegnato a ${esc(who)}</text></svg>`;
+}
+function discProgress(a) {
+  const d = nextDisc(a); if (!d) return `<div class="small muted">Hai conquistato tutti i dischi.</div>`;
+  const prev = DISCS[DISCS.indexOf(d) - 1]; const from = prev ? prev.soglia : 0;
+  const pct = Math.min(100, (a - from) / (d.soglia - from) * 100);
+  return `<div style="display:flex;flex-direction:column;gap:6px"><div class="row between small muted tab"><span>${esc(d.verso)}</span><span>${fmt(a)} / ${fmt(d.soglia)}</span></div><div class="bar"><i style="width:${pct}%;background:${d.bar}"></i></div></div>`;
+}
+
+/* ---------- Schermate ---------- */
+function sfidaCard() {
+  const s = dayStr(new Date()), p = P(), d = (p.daily || {})[s];
+  const res = d ? [0, 1, 2, 3, 4].map(k => d.res[k] === true ? true : (d.res[k] === false || d.done ? false : null)) : [null, null, null, null, null];
+  const played = !!d;
+  const right = res.filter(x => x === true).length;
+  return `<div class="card sfida">
+    <div class="row between" style="align-items:flex-start"><div style="display:flex;flex-direction:column;gap:2px"><span class="row" style="gap:8px"><span class="eyebrow" style="color:var(--gold)">Sfida del giorno</span>${ibtn("sfida", "sm")}</span><span class="disp" style="font-size:20px;white-space:nowrap">${esc(prettyDay(s, true))}</span></div>
+    ${played ? `<span class="disp tab" style="font-size:26px;color:var(--gold)">${right}<span style="font-size:15px;color:var(--muted)"> su 5</span></span>` : `<span class="small muted" style="text-align:right;line-height:1.35">5 domande<br>15 secondi</span>`}</div>
+    ${melodyStaff(s, res.map(x => x === null ? undefined : x), { max: 260 })}
+    ${played
+      ? `<div class="grid2"><button class="btn ghost" data-act="replaymel">▶ Riascolta</button><button class="btn ghost" data-act="share" style="border-color:var(--gold);color:var(--gold)">Condividi</button></div><div class="small muted" style="text-align:center">Nuova sfida tra ${untilTomorrow()}</div>`
+      : `<button class="btn gold" data-act="start" data-mode="sfida">${ICON.play}Gioca la sfida</button>`}
+  </div>`;
+}
+function vSfidaRes() {
+  const g = S.game, s = g.day, res = g.results, r = res.filter(Boolean).length;
+  return `
+  <div class="row center" style="flex-direction:column;gap:4px;padding-top:6px"><span class="eyebrow" style="color:var(--gold);letter-spacing:3px">Sfida del ${esc(prettyDay(s))}</span><span class="disp" style="font-size:38px">${dailyTitle(r)}</span><span class="muted" style="font-size:14px">${r} risposte giuste su 5${r === 5 ? ", bonus di 100 ascolti" : ""}</span></div>
+  <div class="card" style="padding:18px 12px 14px;border-radius:20px;display:flex;flex-direction:column;gap:10px">${melodyStaff(s, res, { max: 330 })}<button class="btn ghost" data-act="replaymel" style="height:46px">▶ Ascolta la tua melodia</button></div>
+  <div class="grid3">
+    <div class="card" style="padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:14px"><span class="disp tab" style="font-size:22px;color:var(--accent)">+${fmt(g.gained)}</span><span class="small muted" style="text-transform:uppercase;letter-spacing:1px;font-size:11px">ascolti</span></div>
+    <div class="card" style="padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:14px"><span class="disp tab" style="font-size:22px">${P().dailyStreak || 1}</span><span class="small muted" style="text-transform:uppercase;letter-spacing:1px;font-size:11px">sfide di fila</span></div>
+    <div class="card" style="padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:14px"><span class="disp tab" style="font-size:22px">${untilTomorrow().split(" e ")[0]}</span><span class="small muted" style="text-transform:uppercase;letter-spacing:1px;font-size:11px">alla prossima</span></div>
+  </div>
+  ${newMedalsBox()}
+  <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px">
+    <button class="btn gold" data-act="share">Manda la tua melodia</button>
+    <button class="btn link" data-act="preview">Guarda come la riceve un amico</button>
+    <button class="btn ghost" data-act="home">Torna al menu</button>
+  </div>`;
+}
+function vRicevuta() {
+  const r = S.recv, n = r.res.filter(Boolean).length, today = dayStr(new Date());
+  const played = !!((P().daily || {})[today]);
+  return `
+  ${S.recvPreview ? `<div class="row"><button class="iconbtn" data-act="backres" aria-label="Indietro">${ICON.back}</button><span class="small muted">Anteprima, così la vede chi riceve il tuo link</span></div>` : ""}
+  <div class="row center" style="flex-direction:column;gap:6px;padding-top:10px"><span class="disp" style="font-size:22px;letter-spacing:1px">${esc(APP_NAME)}</span><span class="eyebrow" style="color:var(--gold);letter-spacing:3px;margin-top:12px">Ti hanno mandato una melodia</span><span class="disp" style="font-size:34px">${dailyTitle(n)}</span><span class="muted" style="font-size:14px">Sfida del ${esc(prettyDay(r.date))}, ${n} risposte giuste su 5</span></div>
+  <div class="card" style="padding:18px 12px 14px;border-radius:20px;display:flex;flex-direction:column;gap:10px">${melodyStaff(r.date, r.res, { max: 330 })}<button class="btn" data-act="playrecv" style="height:50px">▶ Ascolta la melodia</button></div>
+  <div class="muted" style="font-size:14px;line-height:1.5;text-align:center">Ogni nota è una risposta giusta, ogni pausa una risposta sbagliata. Rispondi anche tu alle 5 domande di oggi e componi la tua melodia.</div>
+  <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px">
+    ${played ? `<button class="btn gold" data-act="home">Vai al menu</button>` : `<button class="btn gold" data-act="start" data-mode="sfida">${ICON.play}Gioca la sfida di oggi</button>`}
+    <button class="btn link" data-act="home">Scopri il gioco</button>
+  </div>`;
+}
+function copyModal() {
+  if (!S.copyFallback) return "";
+  return `<div class="modal" role="dialog" aria-modal="true" aria-label="Copia il messaggio"><div class="box"><span class="disp" style="font-size:22px">Copia il messaggio</span><p>Tieni premuto sul testo, seleziona tutto e copialo.</p><textarea id="copyArea" readonly style="width:100%;min-height:120px;border-radius:12px;border:1px solid var(--line2);background:var(--bg);color:var(--fg);padding:10px;font:inherit;font-size:14px">${esc(S.copyFallback)}</textarea><button class="btn" data-act="closecopy">Fatto</button></div></div>`;
+}
+function vHome() {
+  const p = P(), lv = level(p.ascolti), nx = LEVELS[lv], from = LEVELS[lv - 1][1];
+  return `
+  <div class="row between" style="position:relative;z-index:2">
+    <div class="disp" style="font-size:20px;letter-spacing:1px;white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis">${esc(APP_NAME)}</div>
+    <div class="row" style="gap:8px;flex:none"><button class="row" data-act="go" data-view="profilo" aria-label="Il tuo profilo" style="gap:6px;border:2px solid var(--accent);color:var(--accent);background:var(--bg);border-radius:999px;padding:4px 12px 4px 6px;font-size:13px;font-weight:600;white-space:nowrap;height:36px">${ICON.star}Liv. ${lv}</button><button class="iconbtn" data-act="go" data-view="impostazioni" aria-label="Impostazioni" style="width:40px;height:40px;border-radius:999px;background:var(--bg)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C5D0CF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button></div>
+  </div>
+  <div class="hero">${micSvg()}<h1 class="disp">Quanto ne sai di musica?</h1><p>Ciao <button class="namelink" data-act="whomenu" aria-label="Cambia giocatore, ora gioca ${esc(p.name)}">${esc(p.name)} <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#C5D0CF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:middle"><path d="M6 9l6 6 6-6"/></svg></button>, mettiti alla prova una domanda alla volta.</p></div>
+  <div style="display:flex;flex-direction:column;gap:6px">
+    <div class="row between small tab"><span><b style="color:var(--fg)">${esc(levelName(lv))}</b><span class="muted">${nx ? ", verso " + esc(nx[0]) : ""}</span></span><span class="muted">${nx ? fmt(p.ascolti) + " / " + fmt(nx[1]) : fmt(p.ascolti) + " ascolti"}</span></div>
+    <div class="bar"><i style="width:${nx ? Math.min(100, (p.ascolti - from) / (nx[1] - from) * 100) : 100}%"></i></div>
+  </div>
+  ${sfidaCard()}
+  <div class="card scalata">
+    ${vinylSvg("vinyl", "url(#gLabel)")}${ibtn("scalata", "abs")}
+    ${psTag()}
+    <div class="eyebrow">15 note, fino a ${psLeft() ? "900" : "450"} ascolti</div>
+    <div class="disp" style="font-size:34px">La<br>Scalata</div>
+    <div class="muted" style="font-size:14px;line-height:1.4;max-width:200px">Una nota più in alto a ogni risposta giusta.</div>
+    <button class="btn" data-act="start" data-mode="scalata">${ICON.play}Gioca ora</button>
+    ${keysSvg()}
+  </div>
+  <div class="grid2">
+    <div class="mwrap"><button class="mode" data-act="start" data-mode="veloce">${drumSvg()}<span class="fade"></span><span class="eyebrow" style="font-size:10px">10 domande</span><span class="t">Partita veloce</span><span class="small muted">Domande a caso, tutti i generi</span>${psTag(true)}</button>${ibtn("veloce", "abs left")}</div>
+    <div class="mwrap"><button class="mode" data-act="go" data-view="tema">${guitarSvg()}<span class="fade"></span><span class="eyebrow" style="font-size:10px">Scegli il genere</span><span class="t">Quiz a tema</span><span class="small muted">Un genere alla volta</span>${psTag(true)}</button>${ibtn("tema", "abs left")}</div>
+  </div>
+  <div class="mwrap"><button class="duelcard" data-act="go" data-view="duello"><span class="grow" style="display:flex;flex-direction:column;gap:3px;text-align:left"><span class="eyebrow" style="font-size:10px">Con un amico</span><span class="t">Duello</span><span class="small muted">Stesse 10 domande, vince chi ne sa di più</span>${psLeft() ? '<span class="pstag" style="align-self:flex-start;margin-top:4px">×2</span>' : ""}</span><span class="vsart" aria-hidden="true">${vinylSvg("", "#D9967E").replace('<svg class=""', '<svg style="width:62px;height:62px"')}${vinylSvg("", "#8FB8B0").replace('<svg class=""', '<svg style="width:62px;height:62px;margin-left:-22px"')}<b>VS</b></span></button>${ibtn("duello", "abs")}</div>
+  ${goalsRow()}
+  ${(P().wrong || []).length ? `<button class="btn ghost" data-act="go" data-view="stonate" style="justify-content:flex-start;padding:0 14px">${noteBrokenIcon(26)}<span class="grow" style="text-align:left">Le tue stonate</span><span class="small muted">${P().wrong.length} da ripassare</span></button>` : ""}
+  <div class="grid2">
+    ${unseenCount() ? `<button class="btn ghost shine" data-act="go" data-view="bacheca" aria-label="Medaglie, ${unseenCount()} da aprire">${ICON.medal}Medaglie<span class="nbadge">${unseenCount()}</span></button>` : `<button class="btn ghost" data-act="go" data-view="bacheca">${ICON.medal}Medaglie ${p.medals.length}/${MEDALS.length}</button>`}
+    <button class="btn ghost" data-act="go" data-view="classifica">${ICON.podium}Classifica</button>
+  </div>
+  <button class="btn link" data-act="go" data-view="info">Informazioni e privacy</button>`;
+}
+function vGame() {
+  const g = S.game, letters = ["A", "B", "C", "D"], q = g.q;
+  const title = g.mode === "scalata" ? "La Scalata" : g.mode === "veloce" ? "Partita veloce" : g.mode === "sfida" ? "Sfida del giorno" : g.mode === "ripasso" ? "Ripasso" : g.mode === "duello" ? "Duello" : g.genre;
+  let prog;
+  if (g.mode === "scalata") {
+    const missed = g.phase !== "ask" && !g.lastOk;
+    const label = g.phase === "ask" ? `Nota ${g.idx + 1} di 15` : g.lastOk ? `Nota ${g.idx + 1} superata` : g.timedOut ? `Tempo scaduto alla nota ${g.idx + 1}` : `Stonata alla nota ${g.idx + 1}`;
+    prog = `<div style="display:flex;flex-direction:column;gap:4px"><div class="row between"><span class="eyebrow" style="color:${missed ? "var(--err)" : "var(--accent)"}">${label}</span><span class="small muted">Il tuo record, nota ${P().bestNote}</span></div>${staffSvg(g.idx + 1, missed)}</div>`;
+  } else {
+    let dots = "";
+    for (let i = 0; i < g.total; i++) {
+      const r = g.results[i], cur = i === g.idx && g.phase === "ask";
+      const bg = r === true ? "var(--accent)" : r === false ? "var(--err)" : cur ? "var(--deep)" : "var(--card)";
+      const bd = cur ? "2px solid var(--accent)" : r === undefined ? "1px solid var(--line2)" : "none";
+      const hole = r !== undefined ? "var(--ink)" : cur ? "var(--accent)" : "var(--line)";
+      dots += `<i style="background:${bg};border:${bd};${cur ? "box-shadow:0 0 10px rgba(169,199,176,.7)" : ""}"><b style="background:${hole}"></b></i>`;
+    }
+    const right = g.results.filter(Boolean).length;
+    prog = `<div style="display:flex;flex-direction:column;gap:10px;padding:4px 0 6px"><div class="row between"><span class="eyebrow">Domanda ${Math.min(g.idx + 1, g.total)} di ${g.total}</span><span class="small muted">${right} ${right === 1 ? "giusta" : "giuste"} finora</span></div><div class="dots">${dots}</div></div>`;
+  }
+  const ans = g.ans.map((a, i) => {
+    let cls = "ans", tag = "", badge = letters[i];
+    if (g.phase === "ask") { if (g.removed && a.w1) cls += " off"; }
+    else {
+      if (a.c) { cls += " ok"; badge = ICON.check("#1F2A2E"); if (!g.lastOk) tag = "Giusta"; }
+      else if (i === g.sel) { cls += " ko"; badge = ICON.cross("#1F2A2E"); tag = "La tua"; }
+      else cls += " dim";
+    }
+    const dis = g.phase !== "ask" || (g.removed && a.w1);
+    return `<button class="${cls}" data-act="answer" data-i="${i}" ${dis ? "disabled" : ""}><span class="l">${badge}</span><span>${esc(a.t)}</span>${tag ? `<span class="tag">${tag}</span>` : ""}</button>`;
+  }).join("");
+  const hint = g.hint && g.phase === "ask" ? `<div class="hint"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#A9C7B0" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M4 20L17 7M17 7l2.5-2.5"/><circle cx="5" cy="19" r="2" fill="#A9C7B0"/></svg><span><strong style="color:var(--accent)">Il maestro dice</strong>, ${esc(q.h)}</span></div>` : "";
+  let bottom;
+  if (g.phase === "ask") {
+    const aid = (k, name) => `<button class="aid" data-act="aid" data-k="${k}" ${g.aids[k] ? "" : "disabled"} aria-label="${name.replace("<br>", " ")}"><span class="c">${AID_ICON[k]}</span><span class="n">${name}</span></button>`;
+    bottom = g.mode === "duello"
+      ? `<div class="small muted" style="margin-top:auto;text-align:center;padding:10px 0">Nel duello non ci sono aiuti, così è una sfida alla pari.</div>`
+      : g.mode === "sfida"
+      ? `<div class="small muted" style="margin-top:auto;text-align:center;padding:10px 0">Nella sfida del giorno non ci sono aiuti. Ogni risposta giusta suona una nota della melodia di oggi.</div>`
+      : `<div class="aids">${aid("stonata", "Togli una<br>stonata")}${aid("maestro", "Suggerimento<br>del maestro")}${aid("bis", "Bis<br>(cambia domanda)")}</div>`;
+  } else bottom = feedbackPanel();
+  const exit = S.exitAsk ? `<div class="modal" data-act="exitno" role="dialog" aria-modal="true" aria-labelledby="exitTitle"><div class="box" data-stop="1">
+    <span style="width:64px;height:64px;border-radius:999px;background:var(--bg);border:1px solid var(--line3);display:flex;align-items:center;justify-content:center"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#E3A58C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4"/><path d="M15 16l4-4-4-4M19 12H9"/></svg></span>
+    <span id="exitTitle" class="disp" style="font-size:26px">Vuoi uscire dalla partita?</span>
+    <p>${S.game && S.game.gained ? `Gli ascolti che hai guadagnato finora, +${fmt(S.game.gained)}, restano tuoi.` : "Se esci ora, la partita finisce qui."}</p>
+    <div style="display:flex;flex-direction:column;gap:8px;width:100%;margin-top:6px"><button class="btn" data-act="exitno" id="stayBtn">Continua a giocare</button><button class="btn ghost" data-act="exityes" style="border-color:var(--err);color:var(--err)">Esci dalla partita</button></div>
+  </div></div>` : "";
+  return `
+  <div class="row between"><button class="iconbtn" data-act="exit" aria-label="Esci dalla partita">${ICON.x}</button><div class="disp" style="font-size:20px;letter-spacing:2px;text-align:center">${esc(title)}</div>${g.tMax && g.phase === "ask" ? timerHtml() : `<span style="width:44px"></span>`}</div>
+  ${g.mode === "duello" ? `<div class="row" style="gap:10px;background:var(--card);border:1px solid var(--line2);border-radius:999px;padding:6px 14px 6px 6px;align-self:flex-start"><span class="avatar" style="width:30px;height:30px;font-size:14px">${esc(g.duel.names[g.duel.turn].charAt(0).toUpperCase())}</span><span style="font-size:14px;font-weight:700">Tocca a ${esc(g.duel.names[g.duel.turn])}</span></div>` : ""}
+  ${prog}
+  <div class="card qcard">${vinylSvg("vin")}<span class="chip">${esc(q.g)} · ${esc(q.a)}</span><div class="qtext">${esc(q.q)}</div></div>
+  ${hint}<div class="answers">${ans}</div>${bottom}${exit}`;
+}
+function feedbackPanel() {
+  const g = S.game, q = g.q, last = g.idx + 1 >= g.total;
+  const fact = q.s ? `<div class="fact">${ICON.bulb}<span><strong style="color:var(--cool)">Lo sapevi?</strong> ${esc(q.s)}</span></div>` : "";
+  if (g.mode === "scalata" && !g.lastOk) {
+    const hasDisc = S.discQueue.length > 0;
+    return `<div class="panel bad">
+      <div class="row"><div class="grow" style="display:flex;flex-direction:column;gap:2px"><span class="disp" style="font-size:28px">${g.timedOut ? "Tempo scaduto" : "Scalata finita"}</span><span class="small muted">${g.notes ? `Hai superato ${g.notes} ${g.notes === 1 ? "nota" : "note"}` : "Ti sei fermato alla prima nota"}${g.record && g.notes ? ", nuovo record!" : ""}</span></div><div class="pts"><b>+${fmt(g.gained)}</b><small>ascolti</small></div></div>
+      ${fact}${psBox()}${discProgress(P().ascolti)}${reportLink()}
+      ${hasDisc ? `<button class="btn" data-act="todisc">Continua${ICON.arrow}</button>` : `<div class="grid2"><button class="btn ghost" data-act="home">Torna al menu</button><button class="btn" data-act="restart">${ICON.retry}Riprova</button></div>`}
+    </div>`;
+  }
+  const head = g.lastOk
+    ? `<div class="row"><span style="width:44px;height:44px;border-radius:999px;background:var(--accent);display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 6px rgba(169,199,176,.18);flex:none">${ICON.check("#1F2A2E")}</span><span class="disp grow" style="font-size:30px">Giusto!</span>${g.lastPts ? `<div class="pts"><b>+${g.lastPts}</b><small>ascolti</small></div>` : ""}</div>`
+    : `<div class="row"><span style="width:44px;height:44px;border-radius:999px;background:var(--err);display:flex;align-items:center;justify-content:center;flex:none">${ICON.cross("#1F2A2E")}</span><div class="grow" style="display:flex;flex-direction:column"><span class="disp" style="font-size:28px">${g.timedOut ? "Tempo scaduto" : "Sbagliato"}</span><span class="small muted">La risposta giusta era ${esc(q.ok)}</span></div></div>`;
+  const label = last ? (g.mode === "sfida" ? "Ascolta la tua melodia" : g.mode === "duello" && g.duel.turn === 0 ? "Fine del tuo turno" : "Vedi il risultato") : g.mode === "scalata" ? "Prossima nota" : "Prossima domanda";
+  return `<div class="panel ${g.lastOk ? "good" : "bad"}">${head}${fact}<button class="btn" data-act="next">${label}${ICON.arrow}</button>${reportLink()}</div>`;
+}
+function vResult() {
+  const g = S.game, p = P();
+  const isSc = g.mode === "scalata";
+  const right = isSc ? 15 : g.right, total = isSc ? 15 : g.total;
+  const frac = total ? right / total : 0;
+  const circ = 2 * Math.PI * 98;
+  const title = isSc ? "In cima!" : frac >= .8 ? "Bel concerto!" : frac >= .5 ? "Buona esibizione" : "Le prove servono";
+  const eyebrow = isSc ? "La Scalata" : g.mode === "veloce" ? "Partita veloce" : g.mode === "ripasso" ? "Ripasso delle stonate" : "Quiz a tema · " + g.genre;
+  const recordBox = isSc ? `${p.bestNote}/15` : g.mode === "veloce" ? `${p.bestVeloce}/10` : g.mode === "ripasso" ? `${(p.wrong || []).length}` : `${right}/${total}`;
+  return `
+  <div class="row center" style="flex-direction:column;gap:4px"><span class="eyebrow" style="letter-spacing:3px">${esc(eyebrow)}</span><span class="disp" style="font-size:38px">${title}</span>${isSc ? `<span class="small muted">Hai completato tutte le 15 note, premio di ${fmt(g.bonus || 0)} ascolti</span>` : ""}</div>
+  <div style="position:relative;width:210px;height:210px;margin:0 auto;flex:none">
+    ${vinylSvg("", "#A9C7B0").replace('<svg class=""', '<svg style="position:absolute;inset:0;width:210px;height:210px"')}
+    <svg viewBox="0 0 210 210" style="position:absolute;inset:0;width:210px;height:210px" aria-hidden="true"><circle cx="105" cy="105" r="98" fill="none" stroke="#33434A" stroke-width="5"/><circle cx="105" cy="105" r="98" fill="none" stroke="#A9C7B0" stroke-width="5" stroke-linecap="round" stroke-dasharray="${(circ * frac).toFixed(1)} ${circ.toFixed(1)}" transform="rotate(-90 105 105)"/><circle cx="105" cy="105" r="52" fill="#A9C7B0"/><circle cx="105" cy="105" r="47" fill="none" stroke="#6E8F78" stroke-width=".8"/></svg>
+    <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><span class="disp tab" style="font-size:44px;color:var(--ink)">${right}<span style="font-size:24px">/${total}</span></span><span style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#2E4A38">${isSc ? "note" : "risposte giuste"}</span></div>
+  </div>
+  <div class="grid3">
+    <div class="card" style="padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:14px"><span class="disp tab" style="font-size:22px;color:var(--accent)">+${fmt(g.gained)}</span><span class="small muted" style="text-transform:uppercase;letter-spacing:1px;font-size:11px">ascolti</span></div>
+    <div class="card" style="padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:14px"><span class="disp tab" style="font-size:22px">${g.bestRun}</span><span class="small muted" style="text-transform:uppercase;letter-spacing:1px;font-size:11px">di fila</span></div>
+    <div class="card" style="padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:14px"><span class="disp tab" style="font-size:22px">${recordBox}</span><span class="small muted" style="text-transform:uppercase;letter-spacing:1px;font-size:11px">${g.mode === "ripasso" ? "da ripassare" : g.record ? "nuovo record" : "record"}</span></div>
+  </div>
+  ${p.streak >= 2 ? `<div class="card row" style="padding:12px 14px;border-color:var(--line2);border-radius:14px">${ICON.flame}<span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;font-weight:700">Tour di ${p.streak} giorni</span><span class="small muted">${p.streak >= 3 ? "Giochi da più giorni di fila, +10% di ascolti oggi" : "Torna domani, dal terzo giorno di fila guadagni il 10% in più"}. Puoi saltare un giorno a settimana senza perdere la serie.</span></span></div>` : ""}
+  ${psBox()}
+  ${newMedalsBox()}
+  ${discProgress(p.ascolti)}
+  <div class="grid2" style="margin-top:auto"><button class="btn ghost" data-act="home">Torna al menu</button><button class="btn" data-act="restart">${ICON.retry}Rigioca</button></div>`;
+}
+function psBox() {
+  const g = S.game; if (!g || !g.ps || g.mode === "sfida" || psLeft() > 0) return "";
+  return `<div class="card row" style="padding:12px 14px;border-radius:14px;border-color:var(--gold)"><svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true" style="flex:none"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" fill="#E8C874"/></svg><span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;font-weight:700;color:var(--gold)">Le partite doppie di oggi sono finite</span><span class="small muted">Puoi continuare a giocare, con gli ascolti normali. Domani le prime 5 partite valgono di nuovo il doppio.</span></span></div>`;
+}
+function newMedalsBox() {
+  const ids = S.newMedals || []; if (!ids.length) return "";
+  const names = ids.map(id => MEDALS.find(m => m.id === id)).filter(Boolean).map(m => m.nome);
+  if (!names.length) return "";
+  return `<button class="card row shinecard" data-act="go" data-view="bacheca" style="padding:12px 14px;border-color:var(--gold);border-radius:14px;text-align:left;color:var(--fg);width:100%">${sleeveSvg(40)}<span class="grow" style="display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;font-weight:700;color:var(--gold)">${names.length === 1 ? "Hai conquistato una medaglia" : "Hai conquistato " + names.length + " medaglie"}</span><span class="small muted">Tocca per ${names.length === 1 ? "aprirla" : "aprirle"} nella bacheca</span></span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E8C874" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>`;
+}
+function vDisco() {
+  const d = DISCS.find(x => x.id === S.discQueue[0]), p = P(), nd = nextDisc(p.ascolti);
+  return `
+  <div class="row center" style="flex-direction:column;gap:4px;padding-top:6px"><span class="eyebrow" style="letter-spacing:3px">Nuovo traguardo</span><span class="disp" style="font-size:42px;color:var(--gold);text-shadow:0 0 24px rgba(232,200,116,.4)">${esc(d.nome)}!</span><span class="muted" style="font-size:14px;line-height:1.4">${d.kind === "demo" ? `Hai raggiunto ${fmt(d.soglia)} ascolti.<br>Ogni risposta giusta fa girare la tua musica, il prossimo traguardo è il disco d'oro.` : `Hai raggiunto ${fmt(d.soglia)} ascolti.<br>La tua musica sta girando davvero.`}</span></div>
+  <div style="display:flex;justify-content:center">${frameDiscSvg(d, p.name)}</div>
+  ${nd ? discProgress(p.ascolti) : ""}
+  <div style="margin-top:auto;display:flex;flex-direction:column;gap:6px"><button class="btn" data-act="discnext">Continua</button><button class="btn link" data-act="go" data-view="bacheca">Vedi la bacheca</button></div>`;
+}
+function head(eyebrow, title) {
+  return `<div class="row"><button class="iconbtn" data-act="home" aria-label="Indietro">${ICON.back}</button><div class="grow" style="display:flex;flex-direction:column"><span class="eyebrow">${eyebrow}</span><span class="disp" style="font-size:26px">${title}</span></div></div>`;
+}
+function vTema() {
+  const gs = genres(); if (!S.temaSel && gs.length) S.temaSel = gs[0].nome;
+  const best = {}; DB.history.filter(h => h.mode === "tema" && h.player === DB.current).forEach(h => { best[h.genre] = Math.max(best[h.genre] || 0, h.v); });
+  const cards = gs.map(g => `<button class="genre ${S.temaSel === g.nome ? "sel" : ""}" data-act="genre" data-g="${esc(g.nome)}"><span class="rec"></span><span class="lab" style="background:${g.color}">${esc(sigla(g.nome))}</span><span class="nm">${esc(g.nome)}</span><span class="s small muted">${best[g.nome] !== undefined ? `Record ${best[g.nome]}/${Math.min(10, g.n)}` : `${Math.min(10, g.n)} domande`}</span><span class="s bar" style="height:4px"><i style="width:${best[g.nome] ? best[g.nome] / Math.min(10, g.n) * 100 : 0}%;background:${g.color}"></i></span></button>`).join("");
+  return `${head("Scegli il genere", "Quiz a tema")}
+  <div class="muted" style="font-size:14px;line-height:1.4">Fino a 10 domande sul genere che preferisci, 20 ascolti per ogni risposta giusta.</div>
+  ${gs.length ? `<div class="grid2">${cards}</div>` : `<div class="empty">Per il quiz a tema servono almeno 2 domande dello stesso genere.</div>`}
+  ${gs.length ? `<div style="margin-top:auto;display:flex;flex-direction:column;gap:8px"><div class="small muted" style="text-align:center">Genere scelto, <strong style="color:var(--fg)">${esc(S.temaSel)}</strong></div><button class="btn" data-act="start" data-mode="tema">${ICON.play}Inizia il quiz</button></div>` : ""}`;
+}
+function vBacheca() {
+  const p = P();
+  const nextIdx = DISCS.findIndex(d => !p.discs.includes(d.id));
+  const shown = DISCS.filter((d, i) => i <= DISCS.findIndex(x => x.id === "diamante") || i <= nextIdx);
+  const discs = shown.map(d => {
+    const ok = p.discs.includes(d.id);
+    const art = d.kind === "demo"
+      ? `<svg viewBox="0 0 60 60" style="width:70%;height:auto" aria-hidden="true">${cassetteSvg(2, 11, 56)}</svg>`
+      : `<svg viewBox="0 0 60 60" style="width:62%;height:auto;overflow:visible" aria-hidden="true"><circle cx="30" cy="30" r="29" fill="url(#${d.grad})"/><circle cx="30" cy="30" r="21" fill="none" stroke="#000" stroke-opacity=".2"/><circle cx="30" cy="30" r="14" fill="none" stroke="#000" stroke-opacity=".2"/><circle cx="30" cy="30" r="9" fill="#1F2A2E"/><circle cx="30" cy="30" r="1.6" fill="#E4EBE8"/>${d.x ? `<circle cx="54" cy="6" r="10" fill="#1F2A2E" stroke="#E9EEF0" stroke-width="1.2"/><text x="54" y="10" text-anchor="middle" font-family="Oswald, sans-serif" font-size="10" font-weight="700" fill="#E9EEF0">×${d.x}</text>` : ""}</svg>`;
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:none;width:96px"><div style="width:100%;aspect-ratio:.82;max-width:100%;border-radius:6px;background:linear-gradient(135deg,#5A3820,#2E1B0E 50%,#4A2D18);padding:6px;box-shadow:0 8px 16px rgba(0,0,0,.4);opacity:${ok ? 1 : .45}"><div style="width:100%;height:100%;background:#111719;border:1px solid #C9962E;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px">${art}<div style="width:70%;height:9px;border-radius:2px;background:linear-gradient(#F3DC9A,#D2AC52 50%,#A9802C)"></div></div></div><span style="font-size:12px;font-weight:700;text-align:center">${esc(d.nome)}</span><span class="tab" style="font-size:11px;color:var(--muted);text-align:center">${ok ? "Conquistato" : fmt(Math.min(p.ascolti, d.soglia)) + " / " + fmt(d.soglia)}</span></div>`;
+  }).join("");
+  const unseen = p.medals.filter(id => !(p.seen || []).includes(id)).length;
+  const medals = MEDALS.map((m, i) => {
+    const ok = p.medals.includes(m.id), fresh = ok && !(p.seen || []).includes(m.id);
+    if (fresh) return `<button class="medal fresh" data-act="reveal" data-id="${m.id}" aria-label="Apri la nuova medaglia"><span class="newtag">Nuova!</span>${sleeveSvg(54)}<b>Hai una nuova medaglia</b><small>Tocca per aprire</small></button>`;
+    if (ok) return `<button class="medal" data-act="reveal" data-id="${m.id}" aria-label="Guarda ${esc(m.nome)}">${medalSvg(i, true, 44)}<b>${esc(m.nome)}</b><small>${esc(m.desc)}</small></button>`;
+    return `<div class="medal lock">${medalSvg(i, false, 44)}<b>${esc(m.nome)}</b><small>${esc(m.desc)}</small></div>`;
+  }).join("");
+  return `${head(unseen ? `${unseen} ${unseen === 1 ? "medaglia" : "medaglie"} da aprire` : `${p.medals.length} medaglie su ${MEDALS.length}`, "La tua bacheca")}
+  <div style="display:flex;flex-direction:column;gap:10px"><div class="row between"><span class="small muted" style="font-weight:600;letter-spacing:1.5px;text-transform:uppercase">I tuoi dischi</span><span class="small muted tab">${p.discs.length} su ${shown.length}</span></div><div id="discrow" style="display:flex;gap:12px;overflow-x:auto;padding:4px 2px 14px;margin:0 -2px">${discs}</div></div>
+  <div style="display:flex;flex-direction:column;gap:10px"><span class="small muted" style="font-weight:600;letter-spacing:1.5px;text-transform:uppercase">Medaglie</span><div class="grid3">${medals}</div></div>`;
+}
+function vClassifica() {
+  const tabs = ["Scalata", "Veloce", "Ascolti", "Duelli"];
+  if (S.clTab === 3) return vDuelBoard(tabs);
+  let rows = [];
+  if (S.clTab === 2) rows = Object.values(DB.players).filter(p => p.ascolti > 0).map(p => ({ nome: p.name, val: fmt(p.ascolti), n: p.ascolti, data: "ascolti totali" }));
+  else {
+    const mode = S.clTab === 0 ? "scalata" : "veloce";
+    rows = DB.history.filter(h => h.mode === mode).map(h => ({ nome: h.player, n: h.v, val: mode === "scalata" ? `Nota ${h.v}` : `${h.v}/${h.of}`, data: niceDate(h.date) }));
+  }
+  rows.sort((a, b) => b.n - a.n); rows = rows.slice(0, 10);
+  const col = ["#E8C874", "#C9CED3", "#D9967E"];
+  let podium = "";
+  if (rows.length) {
+    podium = `<div class="podium">${[1, 0, 2].filter(i => rows[i]).map(i => { const r = rows[i]; const sz = i === 0 ? 58 : 46; return `<div><div class="av" style="width:${sz}px;height:${sz}px;border-color:${col[i]}">${esc(r.nome.charAt(0).toUpperCase())}</div><span class="nm">${esc(r.nome)}</span><span class="tab" style="font-size:12px;color:${col[i]};font-weight:600">${esc(r.val)}</span><div class="st" style="height:${i === 0 ? 64 : i === 1 ? 46 : 32}px;background:linear-gradient(to bottom,${col[i]},rgba(42,55,60,.4))">${i + 1}</div></div>`; }).join("")}</div>`;
+  }
+  const list = rows.slice(3).map((r, j) => `<div class="lrow ${r.nome === DB.current ? "me" : ""}"><span class="p">${j + 4}</span><span class="grow" style="display:flex;flex-direction:column"><span style="font-size:14px;font-weight:700">${esc(r.nome)}</span><span style="font-size:11px" class="muted">${esc(r.data)}</span></span><span class="v tab">${esc(r.val)}</span></div>`).join("");
+  return `${head("Su questo dispositivo", "Classifica")}
+  <div class="seg">${tabs.map((t, i) => `<button class="${S.clTab === i ? "on" : ""}" data-act="cltab" data-i="${i}">${t}</button>`).join("")}</div>
+  ${rows.length ? podium + `<div style="display:flex;flex-direction:column;gap:8px">${list}</div>` : `<div class="empty">${S.clTab === 0 ? "Gioca una scalata per entrare in classifica." : S.clTab === 1 ? "Gioca una partita veloce per entrare in classifica." : "Guadagna i primi ascolti per entrare in classifica."}</div>`}
+  <button class="btn ghost" style="margin-top:auto" data-act="go" data-view="giocatori">${ICON.people}Cambia giocatore</button>`;
+}
+function vDuelBoard(tabs) {
+  const mine = DB.history.filter(h => h.mode === "duello" && h.player === DB.current);
+  const by = {};
+  mine.forEach(h => { const r = by[h.rival] = by[h.rival] || { nome: h.rival, w: 0, l: 0, d: 0, last: h.date }; if (h.v > h.vs) r.w++; else if (h.v < h.vs) r.l++; else r.d++; if (h.date > r.last) r.last = h.date; });
+  const rows = Object.values(by).sort((a, b) => (b.w + b.l + b.d) - (a.w + a.l + a.d) || b.w - a.w);
+  const tot = mine.length, wins = mine.filter(h => h.v > h.vs).length;
+  const plural = (n, s, p) => `${n} ${n === 1 ? s : p}`;
+  const list = rows.map(r => {
+    const lead = r.w > r.l ? "In vantaggio tu" : r.w < r.l ? `In vantaggio ${r.nome}` : "In parità";
+    return `<div class="lrow" style="min-height:64px"><span class="avatar" style="width:40px;height:40px;font-size:16px;border-color:${r.w > r.l ? "var(--accent)" : r.w < r.l ? "var(--err)" : "var(--line3)"};color:var(--fg)">${esc(r.nome.charAt(0).toUpperCase())}</span><span class="grow" style="display:flex;flex-direction:column;min-width:0"><span style="font-size:15px;font-weight:700">${esc(r.nome)}</span><span class="small muted">${plural(r.w, "vinta", "vinte")}, ${plural(r.l, "persa", "perse")}${r.d ? ", " + plural(r.d, "pari", "pari") : ""} · ultimo ${esc(niceDate(r.last))}</span></span><span class="small" style="font-weight:700;color:${r.w > r.l ? "var(--accent)" : r.w < r.l ? "var(--err)" : "var(--muted)"};text-align:right;max-width:96px">${esc(lead)}</span></div>`;
+  }).join("");
+  return `${head("Su questo dispositivo", "Classifica")}
+  <div class="seg">${tabs.map((t, i) => `<button class="${S.clTab === i ? "on" : ""}" data-act="cltab" data-i="${i}">${t}</button>`).join("")}</div>
+  ${tot ? `<div class="grid3"><div class="card" style="padding:12px 8px;display:flex;flex-direction:column;align-items:center;border-radius:14px"><span class="disp tab" style="font-size:24px">${tot}</span><span class="small muted" style="font-size:10px;text-transform:uppercase;letter-spacing:1px">duelli</span></div><div class="card" style="padding:12px 8px;display:flex;flex-direction:column;align-items:center;border-radius:14px"><span class="disp tab" style="font-size:24px;color:var(--accent)">${wins}</span><span class="small muted" style="font-size:10px;text-transform:uppercase;letter-spacing:1px">vinti</span></div><div class="card" style="padding:12px 8px;display:flex;flex-direction:column;align-items:center;border-radius:14px"><span class="disp tab" style="font-size:24px">${rows.length}</span><span class="small muted" style="font-size:10px;text-transform:uppercase;letter-spacing:1px">sfidanti</span></div></div>
+  <div class="small muted">I duelli di ${esc(DB.current)}, sfidante per sfidante</div><div style="display:flex;flex-direction:column;gap:8px">${list}</div>`
+  : `<div class="empty">Non hai ancora fatto duelli. Sfida un amico sullo stesso telefono e qui vedrai chi è in vantaggio.</div><button class="btn" data-act="go" data-view="duello">Inizia un duello</button>`}
+  <button class="btn ghost" style="margin-top:auto" data-act="go" data-view="giocatori">${ICON.people}Cambia giocatore</button>`;
+}
+function niceDate(s) {
+  const today = dayStr(new Date()); const y = new Date(); y.setDate(y.getDate() - 1);
+  if (s === today) return "oggi"; if (s === dayStr(y)) return "ieri";
+  const [Y, M, D] = s.split("-").map(Number); return D + " " + ["gen", "feb", "mar", "apr", "mag", "giu", "lug", "ago", "set", "ott", "nov", "dic"][M - 1];
+}
+function vGiocatori() {
+  const names = Object.keys(DB.players);
+  return `${head("Chi gioca adesso?", "Giocatori")}
+  <div style="display:flex;flex-direction:column;gap:8px">${names.map(n => `<button class="lrow ${n === DB.current ? "me" : ""}" style="text-align:left;color:var(--fg)" data-act="pick" data-n="${esc(n)}"><span class="grow" style="display:flex;flex-direction:column"><span style="font-size:15px;font-weight:700">${esc(n)}</span><span class="small muted">Liv. ${level(DB.players[n].ascolti)}, ${esc(levelName(level(DB.players[n].ascolti)))} · ${fmt(DB.players[n].ascolti)} ascolti</span></span>${n === DB.current ? '<span class="small" style="color:var(--accent);font-weight:700">In gioco</span>' : ""}</button>`).join("")}</div>
+  <form class="field" data-form="newplayer" style="margin-top:6px"><label for="newname" class="small muted" style="font-weight:600">Aggiungi un giocatore o rinomina il tuo</label><input id="newname" name="newname" maxlength="18" autocomplete="off" placeholder="Il tuo nome"><div class="grid2"><button class="btn ghost" type="button" data-act="rename">Rinomina ${esc(DB.current)}</button><button class="btn" type="submit">Aggiungi</button></div></form>`;
+}
+function vImpostazioni() {
+  const st = settings();
+  const sw = (k, label, sub) => `<button class="lrow" data-act="toggle" data-k="${k}" role="switch" aria-checked="${st[k] ? "true" : "false"}" style="color:var(--fg);text-align:left;width:100%"><span class="grow" style="display:flex;flex-direction:column"><span style="font-size:15px;font-weight:700">${label}</span><span class="small muted">${sub}</span></span><span class="switch ${st[k] ? "on" : ""}"><i></i></span></button>`;
+  const lab = s => `<span class="small muted" style="font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-top:6px">${s}</span>`;
+  return `${head("Il gioco a modo tuo", "Impostazioni")}
+  ${lab("Audio")}
+  <div style="display:flex;flex-direction:column;gap:8px">${sw("sound", "Suoni", "Note, accordi e il ticchettio del tempo")}${sw("vibe", "Vibrazione", "Una vibrazione breve a ogni risposta")}</div>
+  ${lab("Giocatore")}
+  <form class="field" data-form="rename"><label for="renameInput" class="small muted">Il tuo nome</label><div class="row" style="gap:8px"><input id="renameInput" name="renameInput" class="grow" maxlength="18" autocomplete="given-name" value="${esc(DB.current)}" style="min-width:0"><button class="btn" type="submit" style="width:auto;padding:0 18px;height:50px;font-size:15px">Salva</button></div></form>
+  <button class="lrow" data-act="go" data-view="giocatori" style="color:var(--fg);text-align:left;width:100%">${ICON.people}<span class="grow" style="display:flex;flex-direction:column"><span style="font-size:15px;font-weight:700">Cambia giocatore</span><span class="small muted">${Object.keys(DB.players).length} ${Object.keys(DB.players).length === 1 ? "giocatore" : "giocatori"} su questo telefono</span></span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C5D0CF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+  ${lab("Progressi")}
+  <button class="lrow" data-act="go" data-view="salvataggio" style="color:var(--fg);text-align:left;width:100%"><span class="grow" style="display:flex;flex-direction:column"><span style="font-size:15px;font-weight:700">Salva o carica i progressi</span><span class="small muted">Con un codice, per cambiare telefono</span></span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C5D0CF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+  ${lab("Aiuto")}
+  <button class="lrow" data-act="intro" style="color:var(--fg);text-align:left;width:100%"><span class="grow" style="font-size:15px;font-weight:700">Rivedi la presentazione</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C5D0CF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+  <button class="lrow" data-act="go" data-view="info" style="color:var(--fg);text-align:left;width:100%"><span class="grow" style="font-size:15px;font-weight:700">Informazioni e privacy</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C5D0CF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+  ${TEST_MODE ? `${lab("Strumenti di prova")}
+  <button class="lrow" data-act="go" data-view="segnalazioni" style="color:var(--fg);text-align:left;width:100%"><span class="grow" style="font-size:15px;font-weight:700">Segnalazioni ricevute</span><span class="small muted">${(DB.reports || []).length}</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C5D0CF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+  <div class="small muted" style="line-height:1.45">Servono solo in questa versione, per vedere dischi e livelli senza giocare per settimane.</div>
+  <div class="grid2"><button class="btn ghost" data-act="cheat" data-n="1000">+1.000 ascolti</button><button class="btn ghost" data-act="cheat" data-n="10000">+10.000 ascolti</button></div>` : lab("I tuoi dati")}
+  ${S.confirmReset ? `<button class="btn" style="background:var(--err)" data-act="resetyes">Conferma azzeramento</button>` : `<button class="btn ghost" data-act="reset">Azzera i progressi</button>`}`;
+}
+function vInfo() {
+  return `${head(TEST_MODE ? "Versione di prova" : "Versione 1.0", "Informazioni")}
+  <div class="info" style="display:flex;flex-direction:column;gap:10px">
+    <h2>Privacy</h2>
+    <p>Il gioco non richiede registrazione e non mostra pubblicità. Nome, punteggi e medaglie restano salvati solo su questo dispositivo e non vengono inviati a nessuno.</p>${TEST_MODE ? "" : `<p><a href="privacy.html" target="_blank" rel="noopener" style="color:var(--accent)">Leggi l'informativa privacy completa</a></p>`}
+    <p>Per domande, segnalazioni o richieste sulla privacy scrivi a <a href="mailto:${CONTACT_EMAIL}" style="color:var(--accent)">${CONTACT_EMAIL}</a>.</p>
+    <h2>Musica e marchi</h2>
+    <p>Nomi di artisti, titoli di brani e album appartengono ai rispettivi proprietari e sono citati solo come argomento delle domande. Tutte le illustrazioni e i suoni sono originali.</p>
+    <h2>Caratteri</h2>
+    <p>Oswald e Inter, distribuiti con licenza SIL Open Font License.</p>
+  </div>
+  <div class="small muted" style="text-align:center;margin-top:auto">${QUESTIONS.length} domande caricate</div>`;
+}
+
+/* ---------- Disegno e comandi ---------- */
+function render() {
+  if (S.view === "home" && !DB.onboarded) { S.view = "intro"; S.introReplay = false; }
+  if (S.pendingLevel && !S.levelShow && !S.reveal && ["home", "result", "sfidares", "duelres", "impostazioni", "bacheca", "profilo"].includes(S.view)) { S.levelShow = S.pendingLevel; S.pendingLevel = null; setTimeout(SFX.medal, 200); }
+  if (S.goalToast && S.view !== "game") { const m = S.goalToast; S.goalToast = null; setTimeout(() => toast(m), 900); }
+  if (S.restUsed) { S.restUsed = false; setTimeout(() => toast("Ieri era il giorno di riposo della band, la tua serie continua"), 300); }
+  const v = { segnalazioni: vSegnalazioni, salvataggio: vSalvataggio, chi: vChi, duello: vDuelloSetup, handoff: vHandoff, duelres: vDuelRes, profilo: vProfilo, obiettivi: vObiettivi, intro: vIntro, stonate: vStonate, home: vHome, game: vGame, result: vResult, sfidares: vSfidaRes, ricevuta: vRicevuta, disco: vDisco, tema: vTema, bacheca: vBacheca, classifica: vClassifica, giocatori: vGiocatori, info: vInfo, impostazioni: vImpostazioni }[S.view] || vHome;
+  $app.innerHTML = v() + vReveal() + copyModal() + rulesModal() + levelModal() + resumeModal() + whoMenu() + reportModal();
+  if (S.levelShow) S.levelAnimated = true;
+  if (S.reveal) S.reveal.animated = true;
+  const row = document.getElementById("discrow");
+  if (row) { const i = Math.max(0, P().discs.length - 1), el = row.children[i]; if (el) row.scrollLeft = Math.max(0, el.offsetLeft - row.offsetLeft - 108); }
+}
+$app.addEventListener("click", e => {
+  const b = e.target.closest("[data-act], [data-stop]"); if (!b || b.disabled || b.dataset.stop) return;
+  const a = b.dataset.act;
+  if (a === "start") { if (b.dataset.mode === "sfida" && (P().daily || {})[dayStr(new Date())]) { toast("Hai già giocato la sfida di oggi"); return; } S.recvPreview = false; history.replaceState && (() => { try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {} })(); start(b.dataset.mode, b.dataset.mode === "tema" ? S.temaSel : null); }
+  else if (a === "go") { S.whoMenu = false; S.view = b.dataset.view; S.confirmReset = false; if (S.view === "bacheca") S.discQueue = []; render(); window.scrollTo(0, 0); }
+  else if (a === "home") { S.view = "home"; S.game = null; S.confirmReset = false; render(); window.scrollTo(0, 0); }
+  else if (a === "answer") answer(+b.dataset.i);
+  else if (a === "aid") useAid(b.dataset.k);
+  else if (a === "next") next();
+  else if (a === "exit") { S.exitAsk = true; render(); const s = document.getElementById("stayBtn"); if (s) s.focus(); }
+  else if (a === "exitno") { S.exitAsk = false; render(); }
+  else if (a === "exityes") { if (S.game) S.game.done = true; DB.saved = null; if (S.game && S.game.mode === "sfida") { const p = P(); p.daily[S.game.day] = { res: S.game.results.slice(), done: true }; save(); } S.discQueue = []; S.view = "home"; S.game = null; S.exitAsk = false; render(); }
+  else if (a === "restart") { const g = S.game; start(g.mode, g.genre); }
+  else if (a === "todisc") goAfterGame("home");
+  else if (a === "discnext") { S.discQueue.shift(); S.view = S.discQueue.length ? "disco" : S.after; render(); window.scrollTo(0, 0); if (S.view === "disco") SFX.disc(); else if (S.view === "sfidares") { playMelody(S.game.day, S.game.results); animateMelody(S.game.results); } }
+  else if (a === "reveal") { const p = P(); S.reveal = { id: b.dataset.id, fresh: !(p.seen || []).includes(b.dataset.id) }; render(); if (S.reveal.fresh) setTimeout(SFX.medal, 500); }
+  else if (a === "replaymel") { const g = S.view === "sfidares" && S.game ? { day: S.game.day, res: S.game.results } : (() => { const s = dayStr(new Date()), d = (P().daily || {})[s]; return { day: s, res: [0, 1, 2, 3, 4].map(k => d.res[k] === true) }; })(); playMelody(g.day, g.res); animateMelody(g.res); }
+  else if (a === "share") { const s = S.view === "sfidares" && S.game ? S.game.day : dayStr(new Date()); const res = S.view === "sfidares" && S.game ? S.game.results : [0, 1, 2, 3, 4].map(k => ((P().daily || {})[s] || { res: [] }).res[k] === true); copyText(shareText(s, res)); }
+  else if (a === "preview") { const g = S.game; S.recv = { date: g.day, res: g.results.slice() }; S.recvPreview = true; S.view = "ricevuta"; render(); window.scrollTo(0, 0); }
+  else if (a === "backres") { S.view = "sfidares"; S.recvPreview = false; render(); }
+  else if (a === "playrecv") { playMelody(S.recv.date, S.recv.res); animateMelody(S.recv.res); }
+  else if (a === "closecopy") { S.copyFallback = null; render(); }
+  else if (a === "rules") { S.rules = b.dataset.m; render(); const c = document.querySelector('.modal [data-act="closerules"].btn'); if (c) c.focus(); }
+  else if (a === "closerules") { S.rules = null; render(); }
+  else if (a === "closelevel") { S.levelShow = null; S.levelAnimated = false; render(); }
+  else if (a === "resume") { resumeGame(); }
+  else if (a === "report") { S.report = { id: S.game.q.id }; render(); }
+  else if (a === "repreason") { const n = document.getElementById("repNote"); S.report.note = n ? n.value : ""; S.report.reason = +b.dataset.i; render(); }
+  else if (a === "sendreport") {
+    const r = S.report; if (r.reason === undefined) return;
+    const n = document.getElementById("repNote"), q = QUESTIONS.find(x => x.id === r.id);
+    DB.reports = (DB.reports || []).concat({ id: r.id, q: q.q, reason: REPORT_REASONS[r.reason], note: (n ? n.value : "").trim(), player: DB.current, date: dayStr(new Date()) }).slice(-200);
+    save(); const last = DB.reports[DB.reports.length - 1]; S.report = { id: r.id, sent: true, href: reportMailto(last) }; render();
+  }
+  else if (a === "closereport") { S.report = null; render(); }
+  else if (a === "mailopened") { setTimeout(() => { S.report = null; render(); toast("Grazie per la segnalazione"); }, 400); }
+  else if (a === "copyreports") { copyText(document.getElementById("reportsAll").value); }
+  else if (a === "makecode") { makeCode().then(c => { S.saveCode = c; render(); }); }
+  else if (a === "copycode") { copyText(S.saveCode); }
+  else if (a === "loadcode") {
+    const v = document.getElementById("loadCode").value; S.loadDraft = v;
+    readCode(v).then(d => { S.loadData = d; const names = Object.keys(d.players); S.loadConfirm = { n: names.length, names: names.join(", ") }; render(); })
+      .catch(() => toast("Il codice non è valido. Controlla di averlo copiato tutto, dall'inizio QM1 fino alla fine"));
+  }
+  else if (a === "loadno") { S.loadConfirm = null; S.loadData = null; render(); }
+  else if (a === "loadyes") {
+    const d = S.loadData; d.onboarded = true; d.saved = null; DB = d; save();
+    S.loadConfirm = null; S.loadData = null; S.loadDraft = ""; S.saveCode = null; S.game = null;
+    S.view = Object.keys(DB.players).length >= 2 ? "chi" : "home"; render(); window.scrollTo(0, 0); toast("Progressi caricati");
+  }
+  else if (a === "chi") { DB.current = b.dataset.n; save(); S.view = "home"; render(); window.scrollTo(0, 0); }
+  else if (a === "whomenu") { S.whoMenu = true; render(); }
+  else if (a === "closewho") { S.whoMenu = false; render(); }
+  else if (a === "pickwho") { DB.current = b.dataset.n; S.whoMenu = false; save(); render(); toast("Ora gioca " + DB.current); }
+  else if (a === "dropsaved") { dropSaved(); render(); }
+  else if (a === "rival") { S.rival = b.dataset.n; const i = document.getElementById("rivalName"); if (i) i.value = S.rival; }
+  else if (a === "duelstart") { startDuel(document.getElementById("rivalName").value); }
+  else if (a === "duelturn") { const g = S.game; g.duel.turn = 1; g.idx = 0; g.results = []; g.streakRun = 0; g.used = new Set(); g.list = g.list.slice(); setQ(g.list[0]); S.view = "game"; render(); window.scrollTo(0, 0); }
+  else if (a === "rematch") { const r = S.game.duel.names[1]; startDuel(r); }
+  else if (a === "intronext") { S.introStep = (S.introStep || 0) + 1; render(); window.scrollTo(0, 0); if (S.introStep === 3) setTimeout(() => { const i = document.getElementById("introName"); if (i) i.focus(); }, 50); }
+  else if (a === "introback") { S.introStep = Math.max(0, (S.introStep || 0) - 1); render(); }
+  else if (a === "introskip") { S.introStep = 3; render(); }
+  else if (a === "introdone") { finishIntro(document.getElementById("introName").value); }
+  else if (a === "intro") { S.introReplay = true; S.introStep = 0; S.view = "intro"; render(); window.scrollTo(0, 0); }
+  else if (a === "introclose") { S.introReplay = false; S.introStep = 0; S.view = "impostazioni"; render(); window.scrollTo(0, 0); }
+  else if (a === "toggle") { const st = settings(); st[b.dataset.k] = !st[b.dataset.k]; save(); render(); if (b.dataset.k === "sound" && st.sound) SFX.ok(); if (b.dataset.k === "vibe" && st.vibe) vibe(60); }
+  else if (a === "closereveal") {
+    if (!S.reveal || S.reveal.closing) return;
+    const p = P(); p.seen = p.seen || []; if (!p.seen.includes(S.reveal.id)) p.seen.push(S.reveal.id); save();
+    S.reveal.closing = true; render(); setTimeout(() => { S.reveal = null; render(); }, 320);
+  }
+  else if (a === "genre") { S.temaSel = b.dataset.g; render(); }
+  else if (a === "cltab") { S.clTab = +b.dataset.i; render(); }
+  else if (a === "pick") { DB.current = b.dataset.n; save(); S.view = "home"; render(); }
+  else if (a === "rename") {
+    const inp = document.getElementById("newname"); const n = (inp.value || "").trim();
+    if (!n) { toast("Scrivi il nuovo nome"); return; }
+    if (DB.players[n]) { toast("Questo nome esiste già"); return; }
+    const old = DB.current, p = DB.players[old]; p.name = n; DB.players[n] = p; delete DB.players[old];
+    DB.history.forEach(h => { if (h.player === old) h.player = n; }); DB.current = n; save(); toast("Nome cambiato in " + n);
+  }
+  else if (a === "cheat") { addAscolti(+b.dataset.n || 1000); save(); if (S.discQueue.length) { S.after = "impostazioni"; S.view = "disco"; render(); SFX.disc(); } else toast("Ora hai " + fmt(P().ascolti) + " ascolti"); }
+  else if (a === "reset") { S.confirmReset = true; render(); }
+  else if (a === "resetyes") { DB = { current: "Giocatore 1", players: { "Giocatore 1": blankPlayer("Giocatore 1") }, history: [] }; save(); S.confirmReset = false; S.view = "home"; render(); }
+});
+$app.addEventListener("submit", e => {
+  e.preventDefault();
+  if (e.target.dataset.form === "duel") { startDuel(document.getElementById("rivalName").value); return; }
+  if (e.target.dataset.form === "intro") { finishIntro(document.getElementById("introName").value); return; }
+  if (e.target.dataset.form === "rename") {
+    const n = (document.getElementById("renameInput").value || "").trim();
+    if (!n) { toast("Scrivi un nome"); return; }
+    if (n === DB.current) { toast("Il nome è già " + n); return; }
+    if (DB.players[n]) { toast("Questo nome esiste già"); return; }
+    const old = DB.current, p = DB.players[old]; p.name = n; DB.players[n] = p; delete DB.players[old];
+    DB.history.forEach(h => { if (h.player === old) h.player = n; }); DB.current = n; save(); toast("Ora ti chiami " + n); return;
+  }
+  const n = (document.getElementById("newname").value || "").trim();
+  if (!n) { toast("Scrivi un nome"); return; }
+  if (!DB.players[n]) DB.players[n] = blankPlayer(n);
+  DB.current = n; save(); S.view = "home"; render(); window.scrollTo(0, 0);
+});
+document.addEventListener("keydown", e => { if (e.key !== "Escape") return; if (S.report) { S.report = null; render(); } if (S.whoMenu) { S.whoMenu = false; render(); } if (S.rules) { S.rules = null; render(); } if (S.exitAsk) { S.exitAsk = false; render(); } if (S.reveal && !S.reveal.closing) { const p = P(); p.seen = p.seen || []; if (!p.seen.includes(S.reveal.id)) p.seen.push(S.reveal.id); save(); S.reveal = null; render(); } });
+checkSaved();
+loadSheetQuestions();
+(() => { const r = parseShared(location.hash); if (r) { S.recv = r; S.view = "ricevuta"; } else if (DB.onboarded && Object.keys(DB.players).length >= 2) S.view = "chi"; })();
+render();
+</script>
+
+<script>if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));</script>
+</body>
+</html>
